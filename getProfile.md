@@ -120,3 +120,6 @@ curl 'https://api.wikitree.com/api.php?action=getProfile&key=Clemens-1&fields=Id
 ]
 ```
 
+* [examples/getProfile/javascript.html](JavaScript)
+* [examples/getProfile/python.html](Python)
+* [examples/getProfile/php.html](PHP)
