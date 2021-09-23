@@ -1,6 +1,5 @@
 <html>
-<head><title>WikiTree API | getProfile</title>
-</head>
+<head><title>WikiTree API | getProfile</title></head>
 <body>
 
 <!-- Use a GitHub Markdown style -->
@@ -20,51 +19,152 @@
 	}
 </style>
 
-
 <!-- We'll use jQuery to make the Ajax calls easier. -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
+<!-- Use a JSON formatter to show the raw result -->
+<script src="../json-formatter.js"></script>
 
 
 <article class="markdown-body">
+	<h1> getProfile </h1>
 
-<h1> getProfile </h1>
+	<p>
+		We're doing a simple "getProfile" call here, with the results filled in below.
+		The "key" for getProfile is a WikiTree ID (e.g., Shoshone-1) or a page id (e.g. 30030890).
+		We can also optionally specify a set of fields to return. If omitted, then  a default set is used.
+		You can retrieve all fields with a value of "*".
+		See (<a href="../../getProfile.md">getProfile.md doc page</a>).
+		<table>
+		<tr><td>Key:</td><td><input type="text" id="key" name="key" value="Shoshone-1" size="20"></td></tr>
+		<tr><td>Fields:</td><td><input type="text" id="fields" name="key" value="Id,PageId,Name,Derived.LongName,BirthDate,DeathDate" size="80"></td></tr>
+		<tr><td>bioFormat:</td>
+			<td>
+				<input type="radio" name="bioFormat" value="wiki"> wiki
+				<input type="radio" name="bioFormat" value="html"> html
+				<input type="radio" name="bioFormat" value="both"> both
+				(only relevant if Fields includes "Bio")
+			</td>
+		</tr>
+		<tr><td>resolveRedirect:</td>
+			<td>
+				<input type="checkbox" name="resolveRedirect" id="resolveRedirect" value="1"> Resolve/Follow redirections
+				(e.g. try with Adams-24)
+			</td>
+		</tr>
+		<tr><td colspan=3>
+			<button onClick="getProfileWithJQuery()">Get Profile using jQuery</button>
+			<button onClick="getProfileWithJavascript()">Get Profile using JavaScript</button>
+			<button onClick="clearResults()">Clear Results</button>
+		</td></tr>
+		</table>
+	</p>
 
-<p>
-We're doing a simple "getProfile" call here, with the results filled in below.
-The "key" for getProfile is a WikiTree ID (e.g., Shoshone-1) or a page id (e.g. 30030890).
-We can also optionally specify a set of fields to return. If omitted, then  a default set is used.
-You can retrieve all fields with a value of "*".
-See (getProfile.md doc page).
-<br>
-Key: <input type="text" id="key" placeholder="Shoshone-1" value="" size="20"><br>
-Fields: <input type="text" id="fields" placeholder="Id,PageId,Name,Derived.LongName,BirthDate,DeathDate" value="" size="80"><br>
-<button onClick="getProfile()">Get Profile</button>
-</p>
+	<h2>Results</h2>
+	<blockquote id="result"></blockquote>
 
-<h2>Results</h2>
-<blockquote id="result"></blockquote>
-
+	<h2>JSON Results</h2>
+	<blockquote id="json"></blockquote>
 </article>
 
 
 <script>
-// If this were in a function we could return request.promise() to facilitate handling of the asynchronous call.
-function getProfile() {
 
+// When the "Get Profile" button is clicked, we execute this function.
+function getProfileWithJQuery() {
 	// The parameters we want are in our input elements.
 	var key = $('#key').val();
 	var fields = $('#fields').val();
+	var bioFormat = $('input[name="bioFormat"]:checked').val();
+	var resolveRedirect = $('#resolveRedirect').prop('checked') ? 1 : 0;
 
-	// Use jQuery's .ajax method to query the WikiTree API for some content.
-	var request = $.ajax({
+	// The POST is asynchronous, so we have to wait for it to return before we have any profile data to work with.
+	postToAPI( { 'action': 'getProfile', 'key': key, 'fields': fields, 'bioFormat': bioFormat, 'resolveRedirect': resolveRedirect } )
+	.done(function(result) { renderResults(result); })
+	.fail(function(error) {
+		console.log(error);
+		$('#result').html("WikiTree API Error: "+error);
+		$('#json').html('');
+	});
+}
+
+function getProfileWithJavascript() {
+	// The parameters we want are in our input elements.
+	var key = $('#key').val();
+	var fields = $('#fields').val();
+	var bioFormat = $('input[name="bioFormat"]:checked').val();
+	var resolveRedirect = $('#resolveRedirect').prop('checked') ? 1 : 0;
+
+	postToAPIWithJavascript({ 'action': 'getProfile', 'key': key, 'fields': fields, 'bioFormat': bioFormat, 'resolveRedirect': resolveRedirect } )
+	.then(function(result) { renderResults(result); })
+	.catch(function(error) {
+		console.log(error);
+		$('#result').html("WikiTree API Error: "+error);
+		$('#json').html('');
+	});
+}
+
+// Generate some formatted HTML to display the Profile information.
+function renderResults(result) {
+	var data = result[0];
+	if (data.status) {
+		// We had some sort of error. 
+		$('#result').html('WikiTree API Error:'+data.status);
+	}
+	else {
+		// Put our profile information into some HTML to display.
+		// The profile data we've retrieved is in the "profile" element.
+		var html = 'WikiTree API Result<br>';
+		html += 'Retrieved Profile for: data.page_name='+data.page_name+'...<br>';
+		if (data.profile.LongName && data.profile.Name) {
+			html += 'The derived "long" name, linked to the WikiTree profile page is: <a href="https://www.wikitree.com/wiki/'+data.profile.Name+'">'+data.profile.LongName+'</a><br>';
+		}
+
+		// Just use a simple table to display each field value.
+		html += '<table><thead><tr><th>Field</th><th>Value</th></tr></thead><tbody>';
+		for (var x in data.profile) {
+			// DataStatus and PhotoData are themselves objects with a set of keys and values.
+			if (x == 'DataStatus' || x == 'PhotoData') {
+				html += '<tr><td>'+x+'</td><td>';
+				for (var y in data.profile[x]) {
+					html += y + ' = '+data.profile[x][y] + '<br>';
+				}
+				html += '</td></tr>';
+			} 
+
+			// If Children, Parents, Siblings, or Spouses are returned, these are arrays where the key
+			// is the Id of the related profile and the value is another Profile.
+			else if (x == 'Children' || x == 'Parents' || x == 'Spouses' || x == 'Siblings') {
+				html += '<tr><td>'+x+'</td><td>';
+				for (var id in data.profile[x]) {
+					html += id + ': ' + data.profile[x][id].Name + '<br>';
+				}
+				html += '</td></tr>';
+			}
+
+			// Most profile fields are just profile[key] = value.
+			else {
+				html += '<tr><td>'+x+'</td><td>'+data.profile[x]+'</td></tr>';
+			}
+		}
+		html += '</tbody></table>';
+
+		$('#result').html(html);
+		$('#json').html("<pre>"+FormatJSON(result)+"</pre>");
+	}
+}
+
+// Use jQuery's .ajax method to query the WikiTree API for some content.
+function postToAPI(postData) {
+	var ajax = $.ajax({
 		// The WikiTree API endpoint
 		'url': 'https://api.wikitree.com/api.php',
 	
-		// We set crossDomain to true, since this page isn't running on api.wikitree.com.
 		// We tell the browser to send any cookie credentials we might have (in case we authenticated).
-		'crossDomain': true,
 		'xhrFields': { withCredentials: true },
+
+		// Doesn't help. Not required from (dev|apps).wikitree.com and api.wikitree.com disallows cross-origin:*
+		//'crossDomain': true,
 
 		// We're POSTing the data so we don't worry about URL size limits and want JSON back.
 		type: 'POST',
@@ -72,63 +172,52 @@ function getProfile() {
 
 		// Thse are the function/action and parameters we're sending to the API.
 		// getProfile just needs a "key" which can be a WikiTree ID or "page" id.
-		data: { 'action': 'getProfile', 'key': key, 'fields': fields },
-
-		// We specified a dataType of 'json' so the data we get back in our success function
-		// is a JSON object, from the API service. Note that due to historical anomaly, the data that's
-		// returned is an array. The first (zeroth) element is what we really want.
-		success: function(result) { 
-			var data = result[0];
-			if (data.status) {
-				// We had some sort of error. 
-				$('#result').html('WikiTree API Error:'+data.status);
-			}
-			else {
-				// Put our profile information into some HTML to display.
-				// The profile data we've retrieved is in the "profile" element.
-				var html = 'WikiTree API Result<br>';
-				html += 'Retrieved Profile for: data.page_name='+data.page_name+'...<br>';
-				if (data.profile.LongName && data.profile.Name) {
-					html += 'The derived "long" name, linked to the WikiTree profile page is: <a href="https://www.wikitree.com/wiki/'+data.profile.Name+'">'+data.profile.LongName+'</a><br>';
-				}
-
-				// Just use a simple table to display each field value.
-				html += '<table><thead><tr><th>Field</th><th>Value</th></tr></thead><tbody>';
-				for (var x in data.profile) {
-					// DataStatus and PhotoData are themselves objects with a set of keys and values.
-					if (x == 'DataStatus' || x == 'PhotoData') {
-						html += '<tr><td>'+x+'</td><td>';
-						for (var y in data.profile[x]) {
-							html += y + ' = '+data.profile[x][y] + '<br>';
-						}
-						html += '</td></tr>';
-					} 
-
-					// If Children, Parents, or Spouses are returned, these are arrays where the key
-					// is the Id of the related profile and the value is another Profile.
-					else if (x == 'Children' || x == 'Parents' || x == 'Spouses' || x == 'Siblings') {
-						html += '<tr><td>'+x+'</td><td>';
-						for (var id in data.profile[x]) {
-							html += id + ': ' + data.profile[x][id].Name + '<br>';
-						}
-						html += '</td></tr>';
-					}
-
-					// Most profile fields are just profile[key] = value.
-					else {
-						html += '<tr><td>'+x+'</td><td>'+data.profile[x]+'</td></tr>';
-					}
-				}
-				html += '</tbody></table>';
-				$('#result').html(html);
-			}
-		},
-		// This catches errors in the post itself (not errors from the API).
-		error: function(xhr, status) { 
-			console.log(status);
-			$('#result').html('Error posting to WikiTree API');
-		}
+		data: postData
 	});
+
+	return ajax;
+}
+
+// Do the post with native JavaScript rather than the jQuery $.ajax() utility.
+function postToAPIWithJavascript (postData) {
+	return new Promise(
+		function(resolve,reject) {
+			let request = new XMLHttpRequest();
+
+			// We want to send along session credentials in case the user is authenticated.
+			request.withCredentials = true;
+
+			// We want to expect JSON back.
+			request.responseType = 'json';
+
+			// Add our event listener so that when the POST is complete we can "resolve" our Promise (or reject it on error).
+			request.addEventListener("readystatechange", function() {
+				// readyState 4 is "DONE". If we get HTTP status of 200 back, we should have content.
+				if (request.readyState === 4 && request.status === 200) {
+					let result = request.response;
+					resolve(result);
+				}
+				// If we're done and have any other HTTP status, something went wrong.
+				else if (request.readyState === 4) {
+					reject("POST error "+request.status);
+				}
+			});
+			request.open("POST", "https://api.wikitree.com/api.php");
+
+			// Doesn't help. Not required from (dev|apps).wikitree.com and api.wikitree.com disallows cross-origin:*
+			//request.setRequestHeader('Access-Control-Allow-Origin', '*');
+
+			// Convert our incoming associated data array into a FormData element for sending.
+			let formData = new FormData();
+			for (var key in postData) { formData.append(key, postData[key]); } 
+			request.send(formData);
+		}
+	);
+}
+
+function clearResults() {
+	$('#result').html('');
+	$('#json').html('');
 }
 
 </script>

@@ -14,7 +14,7 @@
 
 The "key" parameter is used to indicate which profile to return. This can be either a "WikiTree ID" or a "Page ID". The WikiTree ID is the name used after "/wiki" in the URL of the page. For example, for [Person Profile Pages](https://www.wikitree.com/wiki/Help:Person_Profile) like https://www.wikitree.com/wiki/Shoshone-1, the WikiTree ID is "Shonshone-1". For [Free-Space Profile Pages](https://www.wikitree.com/wiki/Help:Free-Space_Profile), the "Space:" prefix is required. For example, for https://www.wikitree.com/wiki/Space:Space:Edward_D._Whitten%27s_Model_Ships, the WikiTree ID is "Space:Edward_D._Whitten%27s_Model_Ships". 
 
-### fields
+### Fields
 
 The "fields" parameter is optional. If left out, a default set of fields is returned. For Person profile pages, the default is all fields other than the biography, children and spouses. For Free-Space profile pages, the default is to return all fields.
 
