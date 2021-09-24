@@ -1,5 +1,5 @@
 <html>
-<head><title>WikiTree API | getProfile</title></head>
+<head><title>WikiTree API | getPerson</title></head>
 <body>
 
 <!-- Use a GitHub Markdown style -->
@@ -27,14 +27,14 @@
 
 
 <article class="markdown-body">
-	<h1> getProfile </h1>
+	<h1> getPerson </h1>
 
 	<p>
-		We're doing a simple "getProfile" call here, with the results filled in below.
-		The "key" for getProfile is a WikiTree ID (e.g., Shoshone-1) or a page id (e.g. 30030890).
+		We're doing a simple "getPerson" call here, with the results filled in below.
+		The "key" for getPerson is a WikiTree ID (e.g., Shoshone-1) or a User/Person Id (e.g. 27351134).
 		We can also optionally specify a set of fields to return. If omitted, then  a default set is used.
 		You can retrieve all fields with a value of "*".
-		(See <a href="../../getProfile.md">getProfile.md doc page</a>)
+		(See <a href="../../getPerson.md">getPerson.md doc page</a>)
 		<table>
 		<tr><td>Key:</td><td><input type="text" id="key" name="key" value="Shoshone-1" size="20"></td></tr>
 		<tr><td>Fields:</td><td><input type="text" id="fields" name="fields" value="Id,PageId,Name,Derived.LongName,BirthDate,DeathDate" size="80"></td></tr>
@@ -53,8 +53,8 @@
 			</td>
 		</tr>
 		<tr><td colspan=3>
-			<button onClick="getProfileWithJQuery()">Get Profile using jQuery</button>
-			<button onClick="getProfileWithJavascript()">Get Profile using JavaScript</button>
+			<button onClick="getPersonWithJQuery()">Get Profile using jQuery</button>
+			<button onClick="getPersonWithJavascript()">Get Profile using JavaScript</button>
 			<button onClick="clearResults()">Clear Results</button>
 		</td></tr>
 		</table>
@@ -71,7 +71,7 @@
 <script>
 
 // When the "Get Profile" button is clicked, we execute this function.
-function getProfileWithJQuery() {
+function getPersonWithJQuery() {
 	// The parameters we want are in our input elements.
 	var key = $('#key').val();
 	var fields = $('#fields').val();
@@ -79,9 +79,9 @@ function getProfileWithJQuery() {
 	var resolveRedirect = $('#resolveRedirect').prop('checked') ? 1 : 0;
 
 	// The POST is asynchronous, so we have to wait for it to return before we have any profile data to work with.
-	// Thse are the function/action and parameters we're sending to the API.
-	// getProfile just needs a "key" which can be a WikiTree ID or "page" id.
-	postToAPI( { 'action': 'getProfile', 'key': key, 'fields': fields, 'bioFormat': bioFormat, 'resolveRedirect': resolveRedirect } )
+	// We pass in the action and parameters we're sending to the API.
+	// getPerson just needs a "key" which can be a WikiTree ID or "User" Id.
+	postToAPI( { 'action': 'getPerson', 'key': key, 'fields': fields, 'bioFormat': bioFormat, 'resolveRedirect': resolveRedirect } )
 	.done(function(result) { renderResults(result); })
 	.fail(function(error) {
 		console.log(error);
@@ -90,14 +90,17 @@ function getProfileWithJQuery() {
 	});
 }
 
-function getProfileWithJavascript() {
+function getPersonWithJavascript() {
 	// The parameters we want are in our input elements.
 	var key = $('#key').val();
 	var fields = $('#fields').val();
 	var bioFormat = $('input[name="bioFormat"]:checked').val();
 	var resolveRedirect = $('#resolveRedirect').prop('checked') ? 1 : 0;
 
-	postToAPIWithJavascript({ 'action': 'getProfile', 'key': key, 'fields': fields, 'bioFormat': bioFormat, 'resolveRedirect': resolveRedirect } )
+	// The POST is asynchronous, so we have to wait for it to return before we have any profile data to work with.
+	// We pass in the action and parameters we're sending to the API.
+	// getPerson just needs a "key" which can be a WikiTree ID or "User" Id.
+	postToAPIWithJavascript({ 'action': 'getPerson', 'key': key, 'fields': fields, 'bioFormat': bioFormat, 'resolveRedirect': resolveRedirect } )
 	.then(function(result) { renderResults(result); })
 	.catch(function(error) {
 		console.log(error);
@@ -118,18 +121,18 @@ function renderResults(result) {
 		// The profile data we've retrieved is in the "profile" element.
 		var html = 'WikiTree API Result<br>';
 		html += 'Retrieved Profile for: data.page_name='+data.page_name+'...<br>';
-		if (data.profile.LongName && data.profile.Name) {
-			html += 'The derived "long" name, linked to the WikiTree profile page is: <a href="https://www.wikitree.com/wiki/'+data.profile.Name+'">'+data.profile.LongName+'</a><br>';
+		if (data.person.LongName && data.person.Name) {
+			html += 'The derived "long" name, linked to the WikiTree profile page is: <a href="https://www.wikitree.com/wiki/'+data.person.Name+'">'+data.person.LongName+'</a><br>';
 		}
 
 		// Just use a simple table to display each field value.
 		html += '<table><thead><tr><th>Field</th><th>Value</th></tr></thead><tbody>';
-		for (var x in data.profile) {
+		for (var x in data.person) {
 			// DataStatus and PhotoData are themselves objects with a set of keys and values.
 			if (x == 'DataStatus' || x == 'PhotoData') {
 				html += '<tr><td>'+x+'</td><td>';
-				for (var y in data.profile[x]) {
-					html += y + ' = '+data.profile[x][y] + '<br>';
+				for (var y in data.person[x]) {
+					html += y + ' = '+data.person[x][y] + '<br>';
 				}
 				html += '</td></tr>';
 			} 
@@ -138,15 +141,15 @@ function renderResults(result) {
 			// is the Id of the related profile and the value is another Profile.
 			else if (x == 'Children' || x == 'Parents' || x == 'Spouses' || x == 'Siblings') {
 				html += '<tr><td>'+x+'</td><td>';
-				for (var id in data.profile[x]) {
-					html += id + ': ' + data.profile[x][id].Name + '<br>';
+				for (var id in data.person[x]) {
+					html += id + ': ' + data.person[x][id].Name + '<br>';
 				}
 				html += '</td></tr>';
 			}
 
 			// Most profile fields are just profile[key] = value.
 			else {
-				html += '<tr><td>'+x+'</td><td>'+data.profile[x]+'</td></tr>';
+				html += '<tr><td>'+x+'</td><td>'+data.person[x]+'</td></tr>';
 			}
 		}
 		html += '</tbody></table>';

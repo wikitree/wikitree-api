@@ -10,11 +10,11 @@
 |bioFormat|Optional: "wiki", "html", or "both"|
 |resolveRedirect|Optional. If 1, then requested profiles that are redirections are followed to the final profile|
 
-### Key
+### key
 
 The "key" parameter is used to indicate which profile to return. This can be either a "WikiTree ID" or a "Page ID". The WikiTree ID is the name used after "/wiki" in the URL of the page. For example, for [Person Profile Pages](https://www.wikitree.com/wiki/Help:Person_Profile) like https://www.wikitree.com/wiki/Shoshone-1, the WikiTree ID is "Shonshone-1". For [Free-Space Profile Pages](https://www.wikitree.com/wiki/Help:Free-Space_Profile), the "Space:" prefix is required. For example, for https://www.wikitree.com/wiki/Space:Space:Edward_D._Whitten%27s_Model_Ships, the WikiTree ID is "Space:Edward_D._Whitten%27s_Model_Ships". 
 
-### Fields
+### fields
 
 The "fields" parameter is optional. If left out, a default set of fields is returned. For Person profile pages, the default is all fields other than the biography, children and spouses. For Free-Space profile pages, the default is to return all fields.
 
@@ -23,6 +23,10 @@ You can specify which fields to return by setting the "fields" parameter to a co
 ### bioFormat
 
 If you request the "bio" field (the text biography for a Person profile), the default is to return the content as it's stored, with wiki markup. You can instead request that this markup be rendered into HTML (as it would appear on the profile's web page) by specifying a "bioFormat" of "html". If you use a bioFormat value of "both", then both the original wiki text and the rendered HTML will be returned.
+
+### resolveRedirect
+
+Generally if you start at a valid profile and follow use the ids associated with relationships (mother, father) you should get a valid/complete profile in return. However, in some circumstances you may end up requesting a profile that has been merged away into another profile, or otherwise is redirected. If you set resolveRedirect=1 in your POST to the API, then any profiles that would be returned that are redirections will be followed to their end point, and *that* final profile will be returned.
 
 ## Results
 
@@ -103,6 +107,11 @@ Certain, Guess, Blank, etc.
 ```
 curl 'https://api.wikitree.com/api.php?action=getProfile&key=Clemens-1&fields=Id,PageId,Name,FirstName,LastNameAtBirth,BirthDate,DeathDate'
 
+or 
+
+curl 'https://api.wikitree.com/api.php?action=getProfile&key=7146&fields=Id,PageId,Name,FirstName,LastNameAtBirth,BirthDate,DeathDate'
+
+
 [
   {
     "page_name": "Clemens-1",
@@ -121,5 +130,5 @@ curl 'https://api.wikitree.com/api.php?action=getProfile&key=Clemens-1&fields=Id
 ```
 
 * [JavaScript](examples/getProfile/javascript.html)
-* [Python](examples/getProfile/python.html)
-* [PHP](examples/getProfile/php.html)
+* Python - web page, command line
+* [PHP](examples/getProfile/phpWebPage.html) (also have command-live example)

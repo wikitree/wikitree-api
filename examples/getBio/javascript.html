@@ -1,0 +1,141 @@
+<html>
+<head><title>WikiTree API | getBio</title></head>
+<body>
+
+<!-- Use a GitHub Markdown style -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/4.0.0/github-markdown.min.css" integrity="sha512-Oy18vBnbSJkXTndr2n6lDMO5NN31UljR8e/ICzVPrGpSud4Gkckb8yUpqhKuUNoE+o9gAb4O/rAxxw1ojyUVzg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<style>
+	.markdown-body {
+		box-sizing: border-box;
+		min-width: 200px;
+		margin: 0 auto;
+		padding: 45px;
+	}
+
+	@media (max-width: 767px) {
+		.markdown-body {
+			padding: 15px;
+		}
+	}
+</style>
+
+<!-- We'll use jQuery to make the Ajax calls easier. -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<!-- Use a JSON formatter to show the raw result -->
+<script src="../json-formatter.js"></script>
+
+
+<article class="markdown-body">
+	<h1> getBio </h1>
+
+	<p>
+		We're doing a simple "getBio" call here, with the results filled in below.
+		The "key" for getBio is a WikiTree ID (e.g., Shoshone-1) or a User/Person Id (e.g. 27351134).
+		We can also optionally specify a set of fields to return. If omitted, then  a default set is used.
+		You can retrieve all fields with a value of "*".
+		(See <a href="../../getProfile.md">getProfile.md doc page</a>)
+		<table>
+		<tr><td>Key:</td><td><input type="text" id="key" name="key" value="Shoshone-1" size="20"></td></tr>
+		<tr><td>bioFormat:</td>
+			<td>
+				<input type="radio" name="bioFormat" value="wiki"> wiki
+				<input type="radio" name="bioFormat" value="html"> html
+				<input type="radio" name="bioFormat" value="both"> both
+				(only relevant if Fields includes "Bio")
+			</td>
+		</tr>
+		<tr><td>resolveRedirect:</td>
+			<td>
+				<input type="checkbox" name="resolveRedirect" id="resolveRedirect" value="1"> Resolve/Follow redirections
+				(e.g. try with Adams-24)
+			</td>
+		</tr>
+		<tr><td colspan=3>
+			<button onClick="getBioWithJQuery()">Get Biography using jQuery</button>
+			<button onClick="clearResults()">Clear Results</button>
+		</td></tr>
+		</table>
+	</p>
+
+	<h2>Results</h2>
+	<blockquote id="result"></blockquote>
+
+	<h2>JSON Results</h2>
+	<blockquote id="json"></blockquote>
+</article>
+
+
+<script>
+
+// When the "Get Profile" button is clicked, we execute this function.
+function getBioWithJQuery() {
+	// The parameters we want are in our input elements.
+	var key = $('#key').val();
+	var bioFormat = $('input[name="bioFormat"]:checked').val();
+	var resolveRedirect = $('#resolveRedirect').prop('checked') ? 1 : 0;
+
+	// The POST is asynchronous, so we have to wait for it to return before we have any profile data to work with.
+	// We pass in the action and parameters we're sending to the API.
+	// getBio just needs a "key" which can be a WikiTree ID or "User" Id.
+	postToAPI( { 'action': 'getBio', 'key': key, 'bioFormat': bioFormat, 'resolveRedirect': resolveRedirect } )
+	.done(function(result) { renderResults(result); })
+	.fail(function(error) {
+		console.log(error);
+		$('#result').html("WikiTree API Error: "+error);
+		$('#json').html('');
+	});
+}
+
+// Generate some formatted HTML to display the Profile information.
+function renderResults(result) {
+	var data = result[0];
+	if (data.status) {
+		// We had some sort of error. 
+		$('#result').html('WikiTree API Error:'+data.status);
+	}
+	else {
+		// Put our profile information into some HTML to display.
+		// The profile data we've retrieved is in the "profile" element.
+		var html = 'WikiTree API Result<br>';
+		html += 'Retrieved Biography for: data.Name='+data.Name+'...<br>';
+		if (data.bioHTML) {
+			html += '<blockquote>'+data.bioHTML+'</blockquote>';
+		} else {
+			html += '<blockquote>'+data.bio+'</blockquote>';
+		}	
+
+		$('#result').html(html);
+		$('#json').html("<pre>"+FormatJSON(result)+"</pre>");
+	}
+}
+
+// Use jQuery's .ajax method to query the WikiTree API for some content.
+function postToAPI(postData) {
+	var ajax = $.ajax({
+		// The WikiTree API endpoint
+		'url': 'https://api.wikitree.com/api.php',
+	
+		// We tell the browser to send any cookie credentials we might have (in case we authenticated).
+		'xhrFields': { withCredentials: true },
+
+		// Doesn't help. Not required from (dev|apps).wikitree.com and api.wikitree.com disallows cross-origin:*
+		//'crossDomain': true,
+
+		// We're POSTing the data so we don't worry about URL size limits and want JSON back.
+		type: 'POST',
+		dataType: 'json',
+		data: postData
+	});
+
+	return ajax;
+}
+
+function clearResults() {
+	$('#result').html('');
+	$('#json').html('');
+}
+
+</script>
+</body>
+</html>
