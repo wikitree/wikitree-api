@@ -1,0 +1,177 @@
+<html>
+<head><title>WikiTree API | getRelatives</title></head>
+<body>
+
+<!-- Use a GitHub Markdown style -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/4.0.0/github-markdown.min.css" integrity="sha512-Oy18vBnbSJkXTndr2n6lDMO5NN31UljR8e/ICzVPrGpSud4Gkckb8yUpqhKuUNoE+o9gAb4O/rAxxw1ojyUVzg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<style>
+	.markdown-body {
+		box-sizing: border-box;
+		min-width: 200px;
+		margin: 0 auto;
+		padding: 45px;
+	}
+
+	@media (max-width: 767px) {
+		.markdown-body {
+			padding: 15px;
+		}
+	}
+</style>
+
+<!-- We'll use jQuery to make the Ajax calls easier. -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<!-- Use a JSON formatter to show the raw result -->
+<script src="../json-formatter.js"></script>
+
+
+<article class="markdown-body">
+	<h1> getRelatives </h1>
+
+	<p>
+		We're doing a "getRelatives" call here, with the results filled in below.
+		The "keys" for getRelatives is a comma-separated list of WikiTree ID (e.g., Shoshone-1) or a User/Person Id (e.g. 27351134).
+		We can also optionally specify a set of fields to return with each relative's profile. 
+		If omitted, then a default set is used.  You can retrieve all fields with a value of "*".
+		(See <a href="../../getProfile.md">getProfile.md doc page</a>).
+		<table>
+		<tr><td>Keys:</td><td><input type="text" id="keys" name="keys" value="Adams-35,Clemens-1" size="40"></td></tr>
+		<tr><td>Fields:</td><td><input type="text" id="fields" name="fields" value="Id,Name,Derived.LongName,BirthDate,DeathDate,Father,Mother" size="80"></td></tr>
+		<tr><td>bioFormat:</td>
+			<td>
+				<input type="radio" name="bioFormat" value="wiki"> wiki
+				<input type="radio" name="bioFormat" value="html"> html
+				<input type="radio" name="bioFormat" value="both"> both
+				(only relevant if Fields includes "Bio")
+			</td>
+		</tr>
+		<tr><td colspan=3>
+			<button onClick="getRelatives('getParents')">Get Parents</button>
+			<button onClick="getRelatives('getChildren')">Get Children</button>
+			<button onClick="getRelatives('getSiblings')">Get Siblings</button>
+			<button onClick="getRelatives('getSpouses')">Get Spouses</button>
+
+			<button onClick="clearResults()">Clear Results</button>
+		</td></tr>
+		</table>
+	</p>
+
+	<h2>Results</h2>
+	<blockquote id="result"></blockquote>
+
+	<h2>JSON Results</h2>
+	<blockquote id="json"></blockquote>
+</article>
+
+
+<script>
+
+// When the "Get Relatives" button is clicked, we execute this function.
+function getRelatives(getType) {
+	// The parameters we want are in our input elements.
+	var keys = $('#keys').val();
+	var fields = $('#fields').val();
+	var bioFormat = $('input[name="bioFormat"]:checked').val();
+
+	var params = { 'action': 'getRelatives', 'keys': keys, 'fields': fields, 'bioFormat': bioFormat };
+	params[getType] = 1;
+
+	// The POST is asynchronous, so we have to wait for it to return before we have any profile data to work with.
+	// We pass in the action and parameters we're sending to the API.
+	// getAncestors just needs a "key" which can be a WikiTree ID or "User" Id.
+	postToAPI( params )
+	.done(function(result) { renderResults(result); })
+	.fail(function(error) {
+		console.log(error);
+		$('#result').html("WikiTree API Error: "+error);
+		$('#json').html('');
+	});
+}
+
+// Generate some formatted HTML to display the Profile information.
+function renderResults(result) {
+	var data = result[0];
+	if (data.status) {
+		// We had some sort of error. 
+		$('#result').html('WikiTree API Error:'+data.status);
+	}
+	else {
+		// We should have an "items" array with a set of results.
+		var items = data.items;
+		var html = 'WikiTree API Result<br>';
+		for(var idx in items) {
+			item = items[idx];
+			html += "<hr>\nRelatives for <a href=\"https://www.wikitree.com/wiki/"+item.user_name+"\">"+item.user_name+"</a> (#"+item.user_id+")<br>\n";
+			html += htmlForProfile(item.person);
+			html += "\n<hr>\n";
+		}
+
+		$('#result').html(html);
+		$('#json').html("<pre>"+FormatJSON(result)+"</pre>");
+	}
+}
+function htmlForProfile(profile) {
+	var html = "";
+
+	// Just use a simple table to display each field value.
+	html += '<table><thead><tr><th>Field</th><th>Value</th></tr></thead><tbody>';
+	for (var x in profile) {
+		// DataStatus and PhotoData are themselves objects with a set of keys and values.
+		if (x == 'DataStatus' || x == 'PhotoData') {
+			html += '<tr><td>'+x+'</td><td>';
+			for (var y in profile[x]) {
+				html += y + ' = '+profile[x][y] + '<br>';
+			}
+			html += '</td></tr>';
+		} 
+
+		// If Children, Parents, Siblings, or Spouses are returned, these are arrays where the key
+		// is the Id of the related profile and the value is another Profile.
+		else if (x == 'Children' || x == 'Parents' || x == 'Spouses' || x == 'Siblings') {
+			html += '<tr><td>'+x+'</td><td>';
+			for (var id in profile[x]) {
+				html += id + ': ' + profile[x][id].Name + '<br>';
+			}
+			html += '</td></tr>';
+		}
+
+		// Most profile fields are just profile[key] = value.
+		else {
+			html += '<tr><td>'+x+'</td><td>'+profile[x]+'</td></tr>';
+		}
+	}
+	html += '</tbody></table>';
+
+	return html;
+}
+
+// Use jQuery's .ajax method to query the WikiTree API for some content.
+function postToAPI(postData) {
+	var ajax = $.ajax({
+		// The WikiTree API endpoint
+		'url': 'https://api.wikitree.com/api.php',
+	
+		// We tell the browser to send any cookie credentials we might have (in case we authenticated).
+		'xhrFields': { withCredentials: true },
+
+		// Doesn't help. Not required from (dev|apps).wikitree.com and api.wikitree.com disallows cross-origin:*
+		//'crossDomain': true,
+
+		// We're POSTing the data so we don't worry about URL size limits and want JSON back.
+		type: 'POST',
+		dataType: 'json',
+		data: postData
+	});
+
+	return ajax;
+}
+
+function clearResults() {
+	$('#result').html('');
+	$('#json').html('');
+}
+
+</script>
+</body>
+</html>

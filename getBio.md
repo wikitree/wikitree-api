@@ -6,7 +6,7 @@ The getBio action returns the biography text of person profiles. This is the sam
 
 |Param|Value|
 |-----|-----|
-|action|getProfile|
+|action|getBio|
 |key|WikiTree ID or Id|
 |bioFormat|Optional: "wiki", "html", or "both"|
 |resolveRedirect|Optional. If 1, then requested profiles that are redirections are followed to the final profile|
