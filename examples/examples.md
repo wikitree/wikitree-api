@@ -1,45 +1,45 @@
 # WikiTree API Examples
 
 ## getProfile
-* [JavaScript](examples/getProfile/javascript.html)
-* [PHP web page](examples/getProfile/phpWebPage.html)
+* [JavaScript](getProfile/javascript.html)
+* [PHP web page](getProfile/phpWebPage.html)
 * PHP command line
 
 ## getPerson
-* [JavaScript](examples/getPerson/javascript.html)
-* [PHP web page](examples/getPerson/phpWebPage.html)
+* [JavaScript](getPerson/javascript.html)
+* [PHP web page](getPerson/phpWebPage.html)
 * PHP command line
 
 ## getBio
-* [JavaScript](examples/getBio/javascript.html)
+* [JavaScript](getBio/javascript.html)
 
 ## getPhotos
-* [JavaScript](examples/getPhotos/javascript.html)
+* [JavaScript](getPhotos/javascript.html)
 
 ## getAncestors
-* [JavaScript](examples/getAncestors/javascript.html)
+* [JavaScript](getAncestors/javascript.html)
 
 ## getDescendants
-* [JavaScript](examples/getDescendants/javascript.html)
+* [JavaScript](getDescendants/javascript.html)
 
 ## getRelatives
-* [JavaScript](examples/getRelatives/javascript.html)
+* [JavaScript](getRelatives/javascript.html)
 
 ## getWatchlist
-* [JavaScript](examples/getWatchlist/javascript.html)
+* [JavaScript](getWatchlist/javascript.html)
 
 ## getDNATestsByTestTaker
-* [JavaScript](examples/getDNATestsByTestTaker/javascript.html)
+* [JavaScript](getDNATestsByTestTaker/javascript.html)
 
 ## getConnectedProfilesByDNATest
-* [JavaScript](examples/getConnectedProfilesByDNATest/javascript.html)
+* [JavaScript](getConnectedProfilesByDNATest/javascript.html)
 
 ## getConnectedDNATestsByProfile
-* [JavaScript](examples/getConnectedDNATestsByProfile/javascript.html)
+* [JavaScript](getConnectedDNATestsByProfile/javascript.html)
 
 ## searchPerson
-* [JavaScript](examples/searchPerson/javascript.html)
+* [JavaScript](searchPerson/javascript.html)
 
 ## Authentication
-* [JavaScript](examples/authentication/javascript.html)
+* [JavaScript](authentication/javascript.html)
 * Python command line
