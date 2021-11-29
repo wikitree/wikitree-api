@@ -1,0 +1,19 @@
+.markdown-body {
+	box-sizing: border-box;
+	min-width: 200px;
+	margin: 0 auto;
+	padding: 45px;
+}
+
+@media (max-width: 767px) {
+	.markdown-body {
+		padding: 15px;
+	}
+}
+.inactive {
+	opacity: 0.50;
+}
+xmp {
+	background-color: #f0f0f0;
+	padding: 10px;
+}

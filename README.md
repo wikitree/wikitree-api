@@ -79,11 +79,10 @@ curl 'https://api.wikitree.com/api.php?action=getProfile&key=Burk-1'
 |[getConnectedProfilesByDNATest](getConnectedProfilesByDNATest.md)|Get the profiles connected via DNA test|
 |[getConnectedDNATestsByProfile](getConnectedDNATestsByProfile.md)|Get the DNA Tests connected to a profile|
 |[searchPerson](searchPerson.md)|Search for person profiles|
+|[clientLogin](authentication.md)|Authenticate as a WikiTree.com member|
 
 
-## Basic Examples
-
-### Curl
+## Example
 
 ```
 curl 'https://api.wikitree.com/api.php?action=getProfile&key=Franklin-10478'
@@ -104,40 +103,15 @@ curl 'https://api.wikitree.com/api.php?action=getProfile&key=Franklin-10478'
   }
 ]
 ```
-
-### JavaScript + jQuery
-
-```
-$.post(
-	'https://api.wikitree.com/api.php',
-	{
-		'action': 'getProfile',
-		'key': 'Shoshone-1'
-	},
-	function(result) {
-	}
-);
-```
-
-### PHP
-### Python
-### ???
-
+See [Examples](examples.md).
 
 
 
 ## Authentication
 
-Requires logging in as WikiTree user at wikitree.com. Cookie is set there. ID is carried thru subsequent
-API calls with that cookie. This works naturally for interactive use in browser (e.g. JavaScript) which 
-includes the cookies for (?).wikitree.com in posts. For command line usage, you have to mimic this manually.
+Public profiles can be retrieved without any prior authentication using getProfile, getAncestors, etc.. However if you want to retrieve data for a [private](https://www.wikitree.com/wiki/Help:Privacy) profile, then you need to first authenticate as a WikiTree.com member. Then you'll be able to retrieve data for any profile which has that member on its [Trusted List](https://www.wikitree.com/wiki/Help:Trusted_List).
 
-- Interactive = sends viewing user thru wikitree.com, returns with token
-	- JS example
-
-- Command line = requires handling cookie and whatnot interaction as with interactive
-	- curl example
-
+[Authentication](authenciation.md) is a multi-step process in which the editing/viewing user goes to WikiTree.com to provide their credentials and return to the API application with a token. The application can then use the token to validate the user.
 
 ## Complete/Cookbook Examples
 

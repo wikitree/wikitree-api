@@ -1,0 +1,230 @@
+<html>
+<head><title>WikiTree API | Authentication</title></head>
+<body>
+
+<!-- Use a GitHub Markdown style -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/4.0.0/github-markdown.min.css" integrity="sha512-Oy18vBnbSJkXTndr2n6lDMO5NN31UljR8e/ICzVPrGpSud4Gkckb8yUpqhKuUNoE+o9gAb4O/rAxxw1ojyUVzg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="../examples.css" />
+
+<!-- We'll use jQuery to make the Ajax calls easier. -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<!-- Make cookies smoother -->
+<script src="../jquery.cookie.js"></script>
+
+<!-- Use a JSON formatter to show the raw result -->
+<script src="../json-formatter.js"></script>
+
+
+<article id="clientLogin" class="markdown-body clientlogin-step">
+	<h1>1. clientLogin</h1>
+	<p>
+		The first step is for you to send the user to https://api.wikitree.com
+		where they can login with their WikiTree email and password.
+		That form will send you back here with an authorization code. For them
+		to land back here, we need to set a <b>returnURL</b> parameter.
+
+		<xmp>
+			<form action="https://api.wikitree.com/api.php" method="POST">
+				<input type="hidden" name="action" value="clientLogin">
+				<input type="hidden" class="returnURL" name="returnURL" value="&lt;&lt;this URL&gt;&gt;">
+				<input type="submit" value="Click to Login at WikiTree">
+			</form>	
+		</xmp>
+
+		<form action="https://api.wikitree.com/api.php" method="POST">
+			<input type="hidden" name="action" value="clientLogin">
+			<input type="hidden" class="returnURL" name="returnURL" value="">
+			<input type="submit" value="Click to Login at WikiTree">
+		</form>
+	</p>
+</article>
+
+<article id="confirmWithAuthcode" class="markdown-body clientlogin-step">
+	<h1>2. Confirm clientLogin with authcode</h1>
+	<p>
+		When the API redirects back here (i.e. to <b>returnURL</b>), it appends the
+		parameter <b>authcode</b>. See the current page's URL above in the location
+		bar of your browser. The value of this parameter is a unique token.
+		Step two of the client-login process is to POST that token back to the API
+		for confirmation. Upon success, the user is logged in, their browser gets
+		cookies on api.wikitree.com with their session, and a result JSON object
+		is returned with the user ID and WikiTree ID for the now logged-in user.
+	</p>
+	<p>
+		From the Query String, we found an authcode = <span id="authcodeValue">&lt;&lt;authcode&gt;&gt;</span>.
+	</p>
+	<p>
+		So next we POST that back to the API, again with action = clientLogin, for confirmation.
+		<pre>
+$.ajax({
+	// The WikiTree API endpoint
+	'url': 'https://api.wikitree.com/api.php',
+
+	// We tell the browser to send any cookie credentials we might have (in case we authenticated).
+	'xhrFields': { withCredentials: true },
+
+	// Doesn't help. Not required from (dev|apps).wikitree.com and api.wikitree.com disallows cross-origin:*
+	//'crossDomain': true,
+
+	// We're POSTing the data so we don't worry about URL size limits and want JSON back.
+	type: 'POST',
+	dataType: 'json',
+	data: { 'action':'clientLogin', 'authcode':authcode }
+}).done(function(data) {
+	if (data.clientLogin.result == 'Success') {
+		// Copy the userName (WikiTree iD) and userId returned by the API
+		// in our local cookies so we know in the future whether or not the
+		// user is signed in.
+		userName = data.clientLogin.username;
+		userId = data.clientLogin.userid;
+		$.cookie('userName', userName);
+		$.cookie('userId', userId);
+
+		// Show the user the JSON result of our post.
+		$('#authcodeResult').html(FormatJSON(data));
+		$('#confirmed').show();
+	} else {
+		alert("Login failure");
+	}	
+});
+		</pre>
+		<b>API POST Result:</b>
+		<div id="confirmationResult"></div>
+	</p>
+	<blockquote id="authcodeResult"></blockquote>
+	<div id="confirmed" style="display:none">
+		Now clean up by redirecting back to ourselves without the authcode in the URL.
+		This isn't strictly necessary, but is a good clean-up step. Normally we'd just do this redirection,
+		but for this example we'll wait until you click this button.
+		<br>
+		<button id="selfRedirect">Continue</button>
+	</div>
+
+</article>
+
+<article id="authenticated" class="markdown-body clientlogin-step">
+	<h1>3. Authenticated! </h1>
+
+	<p>
+		The user is (already) authenticated and logged into the API. We've stored their
+		user_id (<span id="user_id">&lt;&lt;user_id&gt;&gt;</span>)
+		and WikiTree ID (<span id="user_name">&lt;&lt;user_name&gt;&gt;</span>)
+		here (with cookies on the local hostname) so we know
+		if they depart and return that they're logged in. We don't need to send any
+		further authentication/identity information to the API. We just need to 
+		tell the browser to send along the cookie information for the API hostname so
+		that the user's session information goes through and the API action is processed
+		for the user signed in.
+	</p>
+	<p>
+		You can test this by using an API function like
+		<a href="../getProfile/javascript.html">getProfile</a>
+		where you can now retrieve data for private profiles that are on your own watched list.
+	</p>
+	<p>
+		<button id="startOver">Start Over</button>
+	</p>
+</article>
+
+
+<script>
+// When our page loads, check to see if we are logged in (according to our locally-stored cookie).
+// If not, tell the user to go login.
+$(document).ready(function() {
+
+	// Generalize our returnURL value to be wherever this example is installed.
+	// Normally this is just set in the form directly with a "self" URL.
+	$('.returnURL').val( window.location.href );
+
+	// Grab data from the cookies and the URL query string so we can assess our state.
+	var userName = $.cookie('userName');
+	var userId = $.cookie('userId');
+
+	var u = new URLSearchParams(window.location.search)
+	var authcode = u.get('authcode');
+
+	$('.clientlogin-step').addClass('inactive');
+
+	// If the user is already logged in, we're done.
+	if ((typeof(userName) != 'undefined') && (userName != '')) {
+		$('#user_name').html(userName);
+		$('#user_id').html(userId);
+		$('#authenticated').show().removeClass('inactive');
+		document.getElementById('authenticated').scrollIntoView();
+	}
+
+	// If we're not logged in, but the API has just returned us here with an authcode,
+	// handle sending that back for confirmation and then saving our user information.
+	else if ((typeof authcode != 'undefined') && (authcode != null) && (authcode != '')) {
+		$('#confirmWithAuthcode').show().removeClass('inactive');
+		document.getElementById('confirmWithAuthcode').scrollIntoView();
+
+		$.ajax({
+			// The WikiTree API endpoint
+			'url': 'https://api.wikitree.com/api.php',
+		
+			// We tell the browser to send any cookie credentials we might have (in case we authenticated).
+			'xhrFields': { withCredentials: true },
+
+			// Doesn't help. Not required from (dev|apps).wikitree.com and api.wikitree.com disallows cross-origin:*
+			//'crossDomain': true,
+
+			// We're POSTing the data so we don't worry about URL size limits and want JSON back.
+			type: 'POST',
+			dataType: 'json',
+			data: { 'action':'clientLogin', 'authcode':authcode }
+		}).done(function(data) {
+			$('#authcodeValue').html(authcode);
+
+			if (data.clientLogin.result == 'Success') {
+				// Copy the userName (WikiTree iD) and userId returned by the API
+				// in our local cookies so we know in the future whether or not the
+				// user is signed in.
+				userName = data.clientLogin.username;
+				userId = data.clientLogin.userid;
+
+				$.cookie('userName', userName);
+				$.cookie('userId', userId);
+
+				$('#userName').html(userName);
+				$('#userId').html(userId);
+
+				// Show the user the JSON result of our post.
+				$('#authcodeResult').html("<pre>"+FormatJSON(data)+"</pre>");
+				$('#confirmed').show();
+			} else {
+				alert("Login failure");
+			}	
+		});
+
+	}
+
+	// If we don't have either an existing login or an authcode to confirm, we need
+	// to start off by sending the user to the clientLogin action at the API so they can login.
+	else {
+		$('#clientLogin').show().removeClass('inactive');
+		document.getElementById('clientLogin').scrollIntoView();
+	}
+
+	// Set up click handler on our final clean-up/self-redirect button.
+	$('#selfRedirect').on('click', function(e) {
+		var urlPieces = [location.protocol, '//', location.host, location.pathname]
+		var url = urlPieces.join('');
+		window.location = url;
+	});
+
+	// Set up click handler on start-over button to clear local cookies.
+	$('#startOver').on('click', function(e) {
+		$.cookie('userName', '');
+		$.cookie('userId', '');
+		var urlPieces = [location.protocol, '//', location.host, location.pathname]
+		var url = urlPieces.join('');
+		window.location = url;
+	});
+
+});
+
+</script>
+</body>
+</html>

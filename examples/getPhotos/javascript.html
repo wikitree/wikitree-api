@@ -1,5 +1,5 @@
 <html>
-<head><title>WikiTree API | getBio</title></head>
+<head><title>WikiTree API | getPhotos</title></head>
 <body>
 
 <!-- Use a GitHub Markdown style -->
@@ -14,32 +14,35 @@
 
 
 <article class="markdown-body">
-	<h1> getBio </h1>
+	<h1> getPhotos </h1>
 
 	<p>
-		We're doing a simple "getBio" call here, with the results filled in below.
-		The "key" for getBio is a WikiTree ID (e.g., Shoshone-1) or a User/Person Id (e.g. 27351134).
-		We can also optionally specify a set of fields to return. If omitted, then  a default set is used.
-		You can retrieve all fields with a value of "*".
-		(See <a href="../../getProfile.md">getProfile.md doc page</a>)
+		We're going to get the photos attached to a WikiTree profile.
+		The "key" for getPhotos is a WikiTree ID (e.g., Clemens-1) or a Page Id (e.g. 7146).
+		(See <a href="../../getPhotos.md">getPhotos.md doc page</a>)
 		<table>
-		<tr><td>Key:</td><td><input type="text" id="key" name="key" value="Shoshone-1" size="20"></td></tr>
-		<tr><td>bioFormat:</td>
-			<td>
-				<input type="radio" name="bioFormat" value="wiki"> wiki
-				<input type="radio" name="bioFormat" value="html"> html
-				<input type="radio" name="bioFormat" value="both"> both
-				(only relevant if Fields includes "Bio")
-			</td>
-		</tr>
+		<tr><td>Key:</td><td><input type="text" id="key" name="key" value="Clemens-1" size="20"></td></tr>
 		<tr><td>resolveRedirect:</td>
 			<td>
 				<input type="checkbox" name="resolveRedirect" id="resolveRedirect" value="1"> Resolve/Follow redirections
 				(e.g. try with Adams-24)
 			</td>
 		</tr>
+		<tr><td>Limit:</td><td><input type="text" id="limit" name="limit" value="10"></td></tr>
+		<tr><td>Start:</td><td><input type="text" id="start" name="start" value="0"></td></tr>
+		<tr><td>Order:</td>
+			<td>
+				<select id="order" name="order">
+					<option value="PageId">PageId</option>
+					<option value="Uploaded">Uploaded</option>
+					<option value="Date">Date</option>
+					<option value="ImageName">ImageName</option>
+				</select>
+			</td>
+		</tr>
+
 		<tr><td colspan=3>
-			<button onClick="getBioWithJQuery()">Get Biography using jQuery</button>
+			<button onClick="getPhotos()">Get Photos</button>
 			<button onClick="clearResults()">Clear Results</button>
 		</td></tr>
 		</table>
@@ -55,17 +58,19 @@
 
 <script>
 
-// When the "Get Profile" button is clicked, we execute this function.
-function getBioWithJQuery() {
+// When the "Get Photos" button is clicked, we execute this function.
+function getPhotos() {
 	// The parameters we want are in our input elements.
 	var key = $('#key').val();
-	var bioFormat = $('input[name="bioFormat"]:checked').val();
 	var resolveRedirect = $('#resolveRedirect').prop('checked') ? 1 : 0;
+	var start = $('#start').val();
+	var limit = $('#limit').val();
+	var order = $('#order').val();
 
 	// The POST is asynchronous, so we have to wait for it to return before we have any profile data to work with.
 	// We pass in the action and parameters we're sending to the API.
-	// getBio just needs a "key" which can be a WikiTree ID or "User" Id.
-	postToAPI( { 'action': 'getBio', 'key': key, 'bioFormat': bioFormat, 'resolveRedirect': resolveRedirect } )
+	// getPhotos just needs a "key" which can be a WikiTree ID or "Page" Id.
+	postToAPI( { 'action': 'getPhotos', 'key': key, 'limit':limit, 'start':start, 'order':order, 'resolveRedirect': resolveRedirect } )
 	.done(function(result) { renderResults(result); })
 	.fail(function(error) {
 		console.log(error);
@@ -76,6 +81,7 @@ function getBioWithJQuery() {
 
 // Generate some formatted HTML to display the Profile information.
 function renderResults(result) {
+	console.log(result)
 	var data = result[0];
 	if (data.status) {
 		// We had some sort of error. 
@@ -85,12 +91,16 @@ function renderResults(result) {
 		// Put our profile information into some HTML to display.
 		// The profile data we've retrieved is in the "profile" element.
 		var html = 'WikiTree API Result<br>';
-		html += 'Retrieved Biography for: data.Name='+data.Name+'...<br>';
-		if (data.bioHTML) {
-			html += '<blockquote>'+data.bioHTML+'</blockquote>';
-		} else {
-			html += '<blockquote>'+data.bio+'</blockquote>';
-		}	
+		html += "Retrieved "+data.photos.length+" Photo(s) for: ";
+		if (data.page_name) { html += data.page_name; }
+		else if (data.page_id) { html += data.page_id; }
+		else { html += '?'; }
+		html += '...<br>';
+
+		for(var i=0; i < data.photos.length; i++) {
+			var p = data.photos[i];
+			html += "<a target=\"_new\" href=\"https://www.wikitree.com"+p.URL+"\"><img src=\"https://www.wikitree.com/"+p.URL_75+"\"></a>";
+		}
 
 		$('#result').html(html);
 		$('#json').html("<pre>"+FormatJSON(result)+"</pre>");
@@ -101,7 +111,7 @@ function renderResults(result) {
 function postToAPI(postData) {
 	var ajax = $.ajax({
 		// The WikiTree API endpoint
-		'url': 'https://api.wikitree.com/api.php',
+		'url': 'https://dev2.wikitree.com/api.php',
 	
 		// We tell the browser to send any cookie credentials we might have (in case we authenticated).
 		'xhrFields': { withCredentials: true },

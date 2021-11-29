@@ -1,0 +1,208 @@
+<html>
+<head><title>WikiTree API | getWatchlist</title></head>
+<body>
+
+<!-- Use a GitHub Markdown style -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/4.0.0/github-markdown.min.css" integrity="sha512-Oy18vBnbSJkXTndr2n6lDMO5NN31UljR8e/ICzVPrGpSud4Gkckb8yUpqhKuUNoE+o9gAb4O/rAxxw1ojyUVzg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="../examples.css" />
+
+<!-- We'll use jQuery to make the Ajax calls easier. -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<!-- Make cookies smoother -->
+<script src="../jquery.cookie.js"></script>
+
+<!-- Use a JSON formatter to show the raw result -->
+<script src="../json-formatter.js"></script>
+
+
+
+<article id="authenticate" class="markdown-body">
+	<h1>getWatchlist - authenticate</h1>
+	<p>
+		The getWatchlist() feature requires a logged-in user. Click the
+		button below to login at api.wikitree.com. When you return here you'll
+		be able to try out getWatchlist().
+
+		<form action="https://api.wikitree.com/api.php" method="POST">
+			<input type="hidden" name="action" value="clientLogin">
+			<input type="hidden" class="returnURL" name="returnURL" value="">
+			<input type="submit" value="Click to Login at WikiTree">
+		</form>
+	</p>
+</article>
+
+
+<article id="getWatchlist" class="markdown-body" style="display:none;">
+	<h1> getWatchlist </h1>
+
+	<p>
+		You've logged in (<span class="userName"></span>), so getWatchlist() will
+		get profiles on that user's Watchlist, with the following parameters.
+
+		<table>
+			<tr><td>Limit:</td><td><input type="text" id="limit" name="limit" value="10" size="5"></td></tr>
+			<tr><td>Offset:</td><td><input type="text" id="offset" name="offset" value="0" size="5"></td></tr>
+			<tr><td>Order:</td>
+				<td>
+					<select id="order" name="order">
+						<option value="user_id">user_id</option>
+						<option value="user_name">user_name</option>
+						<option value="user_last_name_current">user_last_name_current</option>
+						<option value="user_birth_date">user_birth_date</option>
+						<option value="user_death_date">user_death_date</option>
+						<option value="page_touched">page_touched</option>
+					</select>
+				</td>
+			</tr>
+			<tr><td>getPerson:</td><td><input type="checkbox" id="getPerson" name="getPerson" value="1" checked></td></tr>
+			<tr><td>onlyLiving:</td><td><input type="checkbox" id="onlyLiving" name="onlyLiving" value="1"></td></tr>
+			<tr><td>excludeLiving:</td><td><input type="checkbox" id="excludeLiving" name="excludeLiving" value="1"></td></tr>
+			<tr><td>getSpace:</td><td><input type="checkbox" id="getSpace" name="getSpace" value="1"></td></tr>
+			<tr><td>Fields:</td><td><input type="text" id="fields" name="fields" value="Id,Name,Derived.LongName,BirthDate,DeathDate" size="80"></td></tr>
+			<tr><td>bioFormat:</td>
+				<td>
+					<input type="radio" name="bioFormat" value="wiki"> wiki
+					<input type="radio" name="bioFormat" value="html"> html
+					<input type="radio" name="bioFormat" value="both"> both
+					(only relevant if Fields includes "Bio")
+				</td>
+			</tr>
+			<tr><td colspan=3>
+				<button onClick="getWatchlist()">Get Watchlist</button>
+				<button onClick="clearResults()">Clear Results</button>
+			</td></tr>
+		</table>
+	</p>
+
+	<h2>JSON Results</h2>
+	<blockquote id="json"></blockquote>
+</article>
+
+
+<script>
+
+$(document).ready(function() {
+	// Generalize our returnURL value to be wherever this example is installed.
+	// Normally this is just set in the form directly with a "self" URL.
+	$('.returnURL').val( window.location.href );
+
+	// Grab data from the cookies and the URL query string so we can assess our state.
+	var userName = $.cookie('userName');
+	var userId = $.cookie('userId');
+	var u = new URLSearchParams(window.location.search)
+	var authcode = u.get('authcode');
+
+	if ((typeof(userName) != 'undefined') && (userName != '')) {
+		$('#user_name').html(userName);
+		$('#user_id').html(userId);
+		$('#getWatchlist').show();
+		document.getElementById('getWatchlist').scrollIntoView();
+	}
+	else if ((typeof authcode != 'undefined') && (authcode != null) && (authcode != '')) {
+		postToAPI( { 'action': 'clientLogin', 'authcode': authcode} )
+		.done(function(data) {
+			if (data.clientLogin.result == 'Success') {
+				$.cookie('userName', data.clientLogin.username);
+				$.cookie('userId', data.clientLogin.userId);
+				var urlPieces = [location.protocol, '//', location.host, location.pathname]
+				var url = urlPieces.join('');
+				window.location = url;
+			} else {
+				alert('Login failed');
+				$('#getWatchlist').show();
+				$('#authenticate').hide();
+			}
+		})
+		.fail(function(error) {
+			$('#getWatchlist').show();
+			$('#authenticate').hide();
+			alert(error);
+		});
+	}
+	else {
+		$('#authenticate').show();
+		$('#getWatchlist').hide();
+	}
+
+});
+
+// When the "Get Watchlist" button is clicked, we execute this function.
+function getWatchlist() {
+	// The parameters we want are in our input elements.
+	var limit = $('#limit').val();
+	var offset = $('#offset').val();
+	var order = $('#order').val();
+	var getPerson = $('#getPerson').prop('checked') ? 1 : 0;
+	var getSpace = $('#getSpace').prop('checked') ? 1 : 0;
+	var onlyLiving = $('#onlyLiving').prop('checked') ? 1 : 0;
+	var excludeLiving = $('#excludeLiving').prop('checked') ? 1 : 0;
+	var fields = $('#fields').val();
+	var bioFormat = $('input[name="bioFormat"]:checked').val();
+
+	var params = {
+		'action': 'getWatchlist',
+		'getPerson': getPerson,
+		'getSpace': getSpace,
+		'onlyLiving': onlyLiving,
+		'excludeLiving': excludeLiving,
+		'limit': limit,
+		'offset': offset,
+		'order': order,
+		'fields': fields,
+		'bioFormat': bioFormat
+	};
+
+	// The POST is asynchronous, so we have to wait for it to return before we have any profile data to work with.
+	// We pass in the action and parameters we're sending to the API.
+	// getAncestors just needs a "key" which can be a WikiTree ID or "User" Id.
+	postToAPI( params )
+	.done(function(result) { renderResults(result); })
+	.fail(function(error) {
+		$('#json').html("WikiTree API Error: "+error);
+	});
+}
+
+// Generate some formatted HTML to display the Profile information.
+function renderResults(result) {
+	var data = result[0];
+	if (data.status) {
+		// We had some sort of error. 
+		$('#result').html('WikiTree API Error:'+data.status);
+	}
+	else {
+		//$('#result').html(html);
+		$('#json').html("<pre>"+FormatJSON(result)+"</pre>");
+	}
+}
+
+
+// Use jQuery's .ajax method to query the WikiTree API for some content.
+function postToAPI(postData) {
+	var ajax = $.ajax({
+		// The WikiTree API endpoint
+		'url': 'https://api.wikitree.com/api.php',
+	
+		// We tell the browser to send any cookie credentials we might have (in case we authenticated).
+		'xhrFields': { withCredentials: true },
+
+		// Doesn't help. Not required from (dev|apps).wikitree.com and api.wikitree.com disallows cross-origin:*
+		//'crossDomain': true,
+
+		// We're POSTing the data so we don't worry about URL size limits and want JSON back.
+		type: 'POST',
+		dataType: 'json',
+		data: postData
+	});
+
+	return ajax;
+}
+
+function clearResults() {
+	$('#result').html('');
+	$('#json').html('');
+}
+
+</script>
+</body>
+</html>
