@@ -1,0 +1,335 @@
+<html>
+<head><title>WikiTree API | Random Tree Walk</title></head>
+<body>
+
+<!-- Use a GitHub Markdown style -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/4.0.0/github-markdown.min.css" integrity="sha512-Oy18vBnbSJkXTndr2n6lDMO5NN31UljR8e/ICzVPrGpSud4Gkckb8yUpqhKuUNoE+o9gAb4O/rAxxw1ojyUVzg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="../examples.css" />
+
+<!-- We'll use jQuery to make the Ajax calls easier. -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<!-- Make cookies smoother -->
+<script src="../jquery.cookie.js"></script>
+
+<style type="text/css">
+	#working {
+		background-color: #f0f0f0;
+		border-bottom: 2px solid black;
+		border-top: 2px solid black;
+		height: 200px;
+		max-height: 200px;
+		overflow: scroll;
+	}
+</style>
+
+<article id="clientLogin" class="markdown-body">
+	<h1>Login to WikiTree</h1>
+	<p>
+		The Random Tree Walk will start with a profile selected from your Watchlist. Before this can happen, you
+		have to login at WikiTree. You'll come back here when that's done.
+
+		<form action="https://api.wikitree.com/api.php" method="POST">
+			<input type="hidden" name="action" value="clientLogin">
+			<input type="hidden" class="returnURL" name="returnURL" value="">
+			<input type="submit" value="Click to Login at WikiTree">
+		</form>
+	</p>
+</article>
+
+<article id="randomTreeWalk" class="markdown-body">
+	<h1>Random Tree Walk</h1>
+
+	<p>
+		This app demonstrates some of the WikiTree API functions by doing a random walk through connected
+		profiles in the tree. In particular, we use: clientLogin, getWatchlist, getProfile, and getRelatives.
+		
+		To get the random walk going, pick a starting point:
+	</p>
+	<p>
+		A. <button id="startWithWatchlist">Start with Random Profile on Your Watchlist</button>
+		<br>
+		B. <button id="startWithSelf">Start with Your Own Profile</button>
+		<br>
+		C. Enter a Starting WikiTree ID: <input type="text" id="startingWikiTreeID" size="20"><button id="startWithID">Start With ID</button>
+	</p>
+	<p>
+		<button id="stopWalk">Stop the Walk</button>
+		<button id="resumeWalk">Resume the Walk</button>
+	</p>
+
+	<div id="working">
+		<div id="workingContent">
+
+		</div>
+	</div>
+
+	<div id="display">
+
+	</div>
+</article>
+
+
+<script>
+var userName;
+var userId;
+var walkID;
+var idList;
+var walkTimer;
+
+$(document).ready(function() {
+
+	// Generalize our returnURL value to be wherever this example is installed.
+	// Normally this is just set in the form directly with a "self" URL.
+	$('.returnURL').val( window.location.href );
+
+	// Grab data from the cookies and the URL query string so we can assess our state.
+	userName = $.cookie('userName');
+	userId = $.cookie('userId');
+
+	var u = new URLSearchParams(window.location.search)
+	var authcode = u.get('authcode');
+
+	// If the user is already logged in, we're done.
+	if ((typeof(userName) != 'undefined') && (userName != '')) {
+		$('#user_name').html(userName);
+		$('#user_id').html(userId);
+		$('#randomTreeWalk').show();
+		$('#clientLogin').hide();
+	}
+
+	// If we're not logged in, but the API has just returned us here with an authcode,
+	// handle sending that back for confirmation and then saving our user information.
+	else if ((typeof authcode != 'undefined') && (authcode != null) && (authcode != '')) {
+		$.ajax({
+			// The WikiTree API endpoint
+			'url': 'https://api.wikitree.com/api.php',
+		
+			// We tell the browser to send any cookie credentials we might have (in case we authenticated).
+			'xhrFields': { withCredentials: true },
+
+			// Doesn't help. Not required from (dev|apps).wikitree.com and api.wikitree.com disallows cross-origin:*
+			//'crossDomain': true,
+
+			// We're POSTing the data so we don't worry about URL size limits and want JSON back.
+			type: 'POST',
+			dataType: 'json',
+			data: { 'action':'clientLogin', 'authcode':authcode }
+		}).done(function(data) {
+			if (data.clientLogin.result == 'Success') {
+				// Copy the userName (WikiTree iD) and userId returned by the API
+				// in our local cookies so we know in the future whether or not the
+				// user is signed in.
+				userName = data.clientLogin.username;
+				userId = data.clientLogin.userid;
+
+				$.cookie('userName', userName);
+				$.cookie('userId', userId);
+
+				$('#userName').html(userName);
+				$('#userId').html(userId);
+
+				var urlPieces = [location.protocol, '//', location.host, location.pathname]
+				var url = urlPieces.join('');
+				window.location = url;
+			} else {
+				alert("Login failure");
+			}	
+		});
+
+	}
+
+	// If we don't have either an existing login or an authcode to confirm, we need
+	// to start off by sending the user to the clientLogin action at the API so they can login.
+	else {
+		$('#clientLogin').show();
+		$('#randomTreeWalk').hide();
+	}
+
+	$('#startWithWatchlist').on('click', function(e) { startWithWatchlist(e); });
+	$('#startWithSelf').on('click', function(e) { startWithSelf(e); });
+	$('#startWithID').on('click', function(e) { startWithID(e); });
+	$('#stopWalk').on('click', function(e) { stopWalk(e); });
+	$('#resumeWalk').on('click', function(e) { resumeWalk(e); });
+
+});
+
+function working(txt){
+	$('#workingContent').append(txt+"<br>\n");
+	$("#working").animate({ scrollTop: $('#working').prop("scrollHeight")}, 200);
+}
+function stopWalk(e) {
+	e.preventDefault();
+	clearTimeout(walkTimer);
+	working("Stopped walking at "+walkID);
+}
+function resumeWalk(e) {
+	e.preventDefault();
+	if (walkID) {
+		working("Resuming walk from "+walkID);
+		display(walkID);
+	} else {
+		working("No ID to resume from. Pick a starting option.");
+	}
+}
+
+
+function startWithSelf(e) {
+	e.preventDefault();
+	working("Starting with your own profile: "+userName);
+	display(userName);
+}
+function startWithID(e) {
+	e.preventDefault();
+	var wikitreeID = $('#startingWikiTreeID').val();
+	working("Starting with WikiTree ID: "+wikitreeID);
+	display(wikitreeID);
+}
+
+
+function startWithWatchlist(e) {
+	e.preventDefault();
+	working('Retrieving your Watchlist...');
+	postToAPI({'action': 'getWatchlist', 'limit': 100, 'getPerson': 1, 'fields': 'Name' })
+	.then(function(result) {
+		var data = result[0];
+		if (data.status) {
+			working('Error retrieving watchlist: '+data.status);
+		} else {
+			working('Watchlist retrieved.');
+			var l = data.watchlist.length;
+			working("Found "+l+" items.");
+			if (l) {
+				var i = Math.floor(Math.random() * data.watchlist.length);
+				working("Pick item #"+i+": "+data.watchlist[i]['Name']);
+				display(data.watchlist[i]['Name']);
+			}
+		}
+	});
+}
+
+function display(wikitreeID) {
+	clearTimeout(walkTimer);
+	working("<br><br><b>Displaying Profile: "+wikitreeID+"</b>");
+	walkID = wikitreeID;
+
+	working("Get primary profile data...");
+	var html = "";
+	postToAPI({'action':'getProfile', 'key':wikitreeID, 'fields': 'ID,Name,Derived.LongName,Gender,BirthDate,DeathDate,Bio,Photo', 'bioFormat': 'html'})
+	.then(function(result) {
+		var profile = result[0].profile;
+		console.log(profile);
+		html += "<h2><a href=\"https://www.wikitree.com/wiki/"+profile.Name+"\">";
+		if (profile.Photo) {
+			html += "<img src=\"https://www.wikitree.com"+profile.PhotoData.url+"\">";
+		} else {
+			if (profile.Gender == 'Male') {
+				html += "<img src=\"https://www.wikitree.com/images/icons/male.gif\">";
+			} else {
+				html += "<img src=\"https://www.wikitree.com/images/icons/female.gif\">";
+			}
+		}
+		if (profile.LongName ) { html += profile.LongName; } else { html += profile.Name; }
+		html += "</a></h2><br>\n";
+		if (profile.BirthDate && profile.BirthDate != '0000-00-00') { html += "Born: "+profile.BirthDate+"<br>\n";}
+		if (profile.DeathDate && profile.DeathDate != '0000-00-00') { html += "Died: "+profile.DeathDate+"<br>\n";}
+		html += "<blockquote>";
+		if (profile.bioHTML) { html += profile.bioHTML; } else { html += "... no bio retrieved ..."; }
+		html += "</blockquote>\n";
+		$('#display').html(html);
+
+		working("Now gather relatives.");
+		postToAPI({'action':'getRelatives', 'keys':profile.Name, 'fields':'ID,Name,Derived.LongName', 'getParents': 1, 'getChildren': 1, 'getSiblings': 1, 'getSpouses': 1})
+		.then(function(result) {
+			if (result[0].items.length) {
+				working("Back with relatives.");
+				idList = [];
+				var p = result[0].items[0].person;
+				html = "Children: ";
+				if (p.Children) {
+					for (var id in p.Children) {
+						html += "<a href=\"https://www.wikitree.com/wiki/"+p.Children[id].Name+"\">"+p.Children[id].LongName+"</a>, ";
+						idList.push(p.Children[id].Name);
+					}
+				} else {
+					html += "No children";
+				}
+				html += "<br>\n";
+
+				html += "Spouses: ";
+				if (p.Spouses) {
+					for (var id in p.Spouses) {
+						html += "<a href=\"https://www.wikitree.com/wiki/"+p.Spouses[id].Name+"\">"+p.Spouses[id].LongName+"</a>, ";
+						idList.push(p.Spouses[id].Name);
+					}
+				} else {
+					html += "No Spouses";
+				}
+				html += "<br>\n";
+
+				html += "Parents: ";
+				if (p.Parents) {
+					for (var id in p.Parents) {
+						html += "<a href=\"https://www.wikitree.com/wiki/"+p.Parents[id].Name+"\">"+p.Parents[id].LongName+"</a>, ";
+						idList.push(p.Parents[id].Name);
+					}
+				} else {
+					html += "No Parents";
+				}
+				html += "<br>\n";
+
+				html += "Siblings: ";
+				if (p.Siblings) {
+					for (var id in p.Siblings) {
+						html += "<a href=\"https://www.wikitree.com/wiki/"+p.Siblings[id].Name+"\">"+p.Siblings[id].LongName+"</a>, ";
+						idList.push(p.Siblings[id].Name);
+					}
+				} else {
+					html += "No Siblings";
+				}
+				html += "<br>\n";
+
+				working("Pausing before random walking...");
+				walkTimer = setTimeout(function() {
+					if (idList.length) {
+						var i = Math.floor(Math.random() * idList.length);
+						working("Walking to item #"+i+" = "+idList[i]);
+						display(idList[i]);
+					} else {
+						working("No new profiles to walk to. Ending.");
+					}
+				}, 5000);
+
+				$('#display').append(html);
+			}
+
+		});
+	});
+}
+
+
+
+// Use jQuery's .ajax method to query the WikiTree API for some content.
+function postToAPI(postData) {
+	working("POST to API: "+JSON.stringify(postData));
+	var ajax = $.ajax({
+		// The WikiTree API endpoint
+		'url': 'https://api.wikitree.com/api.php',
+	
+		// We tell the browser to send any cookie credentials we might have (in case we authenticated).
+		'xhrFields': { withCredentials: true },
+
+		// Doesn't help. Not required from (dev|apps).wikitree.com and api.wikitree.com disallows cross-origin:*
+		//'crossDomain': true,
+
+		// We're POSTing the data so we don't worry about URL size limits and want JSON back.
+		type: 'POST',
+		dataType: 'json',
+		data: postData
+	});
+
+	return ajax;
+}
+</script>
+</body>
+</html>

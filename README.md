@@ -4,8 +4,6 @@
 
 The WikiTree API provides read-only access to much of the profile data on the site. You can use it for your own applications that read and display the contents. If you want to enable updates to the content, you can use the data from the API and send your users through edit functions on the site.
 
-TO DO - need more useful copy here about the API.
-
 
 ## Getting Started
 
@@ -103,7 +101,7 @@ curl 'https://api.wikitree.com/api.php?action=getProfile&key=Franklin-10478'
   }
 ]
 ```
-See [Examples](examples.md).
+See [Examples](examples/examples.md).
 
 
 
@@ -115,18 +113,12 @@ Public profiles can be retrieved without any prior authentication using getProfi
 
 ## Complete/Cookbook Examples
 
-- Web page with user authentication and then manipulation of profiles on their watchlist (JS)
-
-	- use this auth example code/sequence in the others below as optional sign-in
-
-
 - "Get Family" JavaScript/etc load family circle (ancestors, descendants) via manual walk of ids
 - 	and then via getAncestors/getRelatives/
 
 - "Find oldest grand+ parent"
 
 - "Family Story" - JavaScript/etc family story - bio snippets for nuclear family
-
 
 - Chrome plugin to do something with WikiTree person profile pages. (JS only)
 

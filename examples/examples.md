@@ -2,12 +2,12 @@
 
 ## getProfile
 * [JavaScript](getProfile/javascript.html)
-* [PHP web page](getProfile/phpWebPage.html)
+* [PHP web page](getProfile/phpWebPage.php)
 * PHP command line
 
 ## getPerson
 * [JavaScript](getPerson/javascript.html)
-* [PHP web page](getPerson/phpWebPage.html)
+* [PHP web page](getPerson/phpWebPage.php)
 * PHP command line
 
 ## getBio
@@ -43,3 +43,6 @@
 ## Authentication
 * [JavaScript](authentication/javascript.html)
 * Python command line
+
+## Random Tree Walk
+This [JavaScript](randomTreeWalk/randomTreeWalk.html) example demonstrates a handful of the API functions working together in a simple app that randomly walks through connected profiles.
