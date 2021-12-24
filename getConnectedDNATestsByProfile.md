@@ -33,6 +33,8 @@ The "key" parameter is used to indicate the DNA test taker profile. This can be 
 |ftdna|[Family Tree DNA kit number](https://www.wikitree.com/wiki/Help:Family_Tree_DNA)|
 |gedmatch|[GEDmatch ID](https://www.wikitree.com/wiki/Help:GEDMatch)|
 |haplom|[Mitochondrial haplogroup](https://www.wikitree.com/wiki/Help:Haplogroups)|
+|mitoydna|[mitoYDNA ID](https://www.wikitree.com/wiki/Help:MitoYDNA)|
+|yourDNAportal|[YourDNAPortal ID](https://www.wikitree.com/wiki/Help:YourDNAportal)|
 |taker['Id']|User ID of the test-taker profile|
 |taker['Name']|WikiTree ID of the test-taker profile|
 |taker['PageId']|Page ID of the test-taker profile|

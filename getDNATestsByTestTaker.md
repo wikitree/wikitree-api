@@ -36,6 +36,8 @@ The "key" parameter is used to indicate which profile to return. This can be eit
 |ftdna|[Family Tree DNA kit number](https://www.wikitree.com/wiki/Help:Family_Tree_DNA)|
 |gedmatch|[GEDmatch ID](https://www.wikitree.com/wiki/Help:GEDMatch)|
 |haplom|[Mitochondrial haplogroup](https://www.wikitree.com/wiki/Help:Haplogroups)|
+|mitoydna|[mitoYDNA ID](https://www.wikitree.com/wiki/Help:MitoYDNA)|
+|yourDNAportal|[YourDNAPortal ID](https://www.wikitree.com/wiki/Help:YourDNAportal)|
 
 ## Examples
 
