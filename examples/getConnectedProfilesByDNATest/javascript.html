@@ -1,5 +1,5 @@
 <html>
-<head><title>WikiTree API | getConnectedProfilesByDNATests</title></head>
+<head><title>WikiTree API | getConnectedProfilesByDNATest</title></head>
 <body>
 
 <!-- Use a GitHub Markdown style -->
@@ -14,11 +14,11 @@
 
 
 <article class="markdown-body">
-	<h1> getConnectedProfilesByDNATests </h1>
+	<h1> getConnectedProfilesByDNATest</h1>
 
 	<p>
 		Retrieve the profiles connected to a test-taker profile through a particular DNA Test.
-		The "key" for getConnectedProfilesByDNATests is a WikiTree ID (e.g., Whitten-1) or a User/Person Id (e.g. 32).
+		The "key" for getConnectedProfilesByDNATest is a WikiTree ID (e.g., Whitten-1) or a User/Person Id (e.g. 32).
 		<table>
 		<tr><td>Key:</td><td><input type="text" id="key" name="key" value="Whitten-1" size="20"></td></tr>
 		<tr><td>DNA Tests:</td>
@@ -40,7 +40,7 @@
 			</td>
 		</tr>
 		<tr><td colspan=3>
-			<button onClick="getDNATests()">Get DNA Tests</button>
+			<button onClick="getConnectedProfiles()">Get Connected Profiles</button>
 			<button onClick="clearResults()">Clear Results</button>
 		</td></tr>
 		</table>
@@ -53,8 +53,8 @@
 
 <script>
 
-// When the "Get DNA Tests" button is clicked, we execute this function.
-function getDNATests() {
+// When the "Get Connected Profiles" button is clicked, we execute this function.
+function getConnectedProfiles() {
 	// The parameters we want are in our input elements.
 	var key = $('#key').val();
 	var dna_id = $('#dna_id').val();
