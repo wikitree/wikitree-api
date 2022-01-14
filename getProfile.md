@@ -46,12 +46,6 @@ Generally if you start at a valid profile and follow use the ids associated with
 |RealName|The "Preferred" first name of the profile|
 |Prefix|Prefix|
 |Suffix|Suffix|
-|**Derived Fields**|Requested with "Derived.FieldName"|
-|ShortName|RealName (LastNameAtBirth) LastNameCurrent Suffix
-|BirthName|FirstName MiddleName|
-|BirthNamePrivate|RealName LastNameAtBirth Suffix|(LastNameAtBirth) LastNameCurrent Suffix|
-|LongName|FirstName MiddleName (LastNameAtBirth) LastNameCurrent Suffix|
-|LongNamePrivate|RealName MiddleInitial (LastNameAtBirth) LastNameCurrent Suffix |
 |BirthDate|The date of birth, YYYY-MM-DD. The Month (MM) and Day (DD) may be zeros.|
 |DeathDate|The date of death, YYYY-MM-DD. The Month (MM) and Day (DD) may be zeros.|
 |BirthLocation|Birth location|
@@ -61,7 +55,7 @@ Generally if you start at a valid profile and follow use the ids associated with
 |Gender|Male or Female|
 |Photo|The base filename of the primary photo for the profile|
 |IsLiving|1 if the person is considered "living", 0 otherwise|
-|Touched|The timestamp the profile was last modified,YYYYMMDDHHMMSS
+|Touched|The timestamp the profile was last modified, YYYYMMDDHHMMSS
 |Privacy|An integer representing the [Privacy](https://www.wikitree.com/wiki/Help:Privacy) setting on the profile. The Privacy determines which fields are available.|
 |Privacy_IsPrivate|True if Privacy = 20|
 |Privacy_IsPublic|True if Privacy = 50|
@@ -77,11 +71,25 @@ Generally if you start at a valid profile and follow use the ids associated with
 |IsRedirect|1 if the profile is a redirection to another profile, e.g. if the LastNameAtBirth was changed.|
 |DataStatus|An array of the "guess", "certain", etc. flags for the data fields.
 |PhotoData|Detailed information for the primary photo|
-|***Relative Profiles***|These are arrays of Profile items, indexed by Id, each with the same fields as for the returned profile.|
+
+The following fields are derived from other fields. They can be requested with "Derived.FieldName".
+
+|Field|Description|
+|-----|-----------|
+|ShortName|RealName (LastNameAtBirth) LastNameCurrent Suffix
+|BirthName|FirstName MiddleName|
+|BirthNamePrivate|RealName LastNameAtBirth Suffix|(LastNameAtBirth) LastNameCurrent Suffix|
+|LongName|FirstName MiddleName (LastNameAtBirth) LastNameCurrent Suffix|
+|LongNamePrivate|RealName MiddleInitial (LastNameAtBirth) LastNameCurrent Suffix |
+
+The relative fields are arrays of Profile items, indexed by Id, each with the same fields as for the returned profile.
+|Field|Description|
+|-----|-----------|
 |Parents|
 |Children|
 |Spouses|
 |Siblings|
+
 
 ### DataStatus Details
 

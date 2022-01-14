@@ -38,7 +38,7 @@
 * [JavaScript](getConnectedDNATestsByProfile/javascript.html)
 
 ## searchPerson
-* [JavaScript](searchPerson/javascript.html)
+* Coming soon.
 
 ## Authentication
 * [JavaScript](authentication/javascript.html)

@@ -69,6 +69,7 @@ curl 'https://api.wikitree.com/api.php?action=getProfile&key=Burk-1'
 |[getProfile](getProfile.md)|Retrieve a Person or Free-Space profile|
 |[getPerson](getPerson.md)|Retrieve a Person|
 |[getBio](getBio.md)|Get the biography text for a person profile|
+|[getPhotos](getPhotos.md)|Get the photos connected to a profile|
 |[getAncestors](getAncestors.md)|Get multiple generations of ancestors of a person profile, following father and mother|
 |[getDescendants](getDescendants.md)|Get multiple generations of descendants of a person profile, following children|
 |[getRelatives](getRelatives.md)|Get parents, children, siblings, and/or spouses of a profile|

@@ -36,7 +36,7 @@ Generally if you start at a valid profile and follow use the ids associated with
 
 ## Results
 
-See [getProfile.md](getProfile.md).
+See [getProfile.md](getProfile.md) for the fields in each Person profile.
 
 
 ## Examples
