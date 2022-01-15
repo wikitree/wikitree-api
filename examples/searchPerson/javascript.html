@@ -1,0 +1,132 @@
+<html>
+<head><title>WikiTree API | searchPerson</title></head>
+<body>
+
+<!-- Use a GitHub Markdown style -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/4.0.0/github-markdown.min.css" integrity="sha512-Oy18vBnbSJkXTndr2n6lDMO5NN31UljR8e/ICzVPrGpSud4Gkckb8yUpqhKuUNoE+o9gAb4O/rAxxw1ojyUVzg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="../examples.css" />
+
+<!-- We'll use jQuery to make the Ajax calls easier. -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<!-- Use a JSON formatter to show the raw result -->
+<script src="../json-formatter.js"></script>
+
+
+<article class="markdown-body">
+	<h1> searchPerson </h1>
+
+	<p>
+		The API "searchPerson" action allows you to search the person profiles on WikiTree, much as you would through a web
+		browser at <a href="https://www.wikitree.com/wiki/Special:SearchPerson">Special:SearchPerson</a>. The parameters
+		include key/search values to match against fields in each person profile, as well as some option that control
+		how broadly or narrowly the search is performed. As with other API functions that retrieve profiles, you can also
+		specify a "fields" parameter to indicate which of the data fields you want returned for each matching profile
+		(See <a href="../../getProfile.md">getProfile.md doc page</a>).
+	</p>
+	<p>
+		Rather than reproduce the form you can see at Special:SearchPerson here, this simple example will do a simple search
+		for profiles of people with your last name.
+	</p>
+	<p>
+		What is your surname? <input type="text" id="surname" name="surname" value="" size="20">
+		<button onClick="searchPerson()">Search</button>
+	</p>
+
+	<h2>Results</h2>
+	<blockquote id="result"></blockquote>
+
+	<h2>JSON Results</h2>
+	<blockquote id="json"></blockquote>
+</article>
+
+
+<script>
+
+// When the "Search" button is clicked, we execute this function.
+function searchPerson() {
+	// The parameters we want are in our input elements.
+	var surname = $('#surname').val();
+
+	// We're going to search for person profiles that have the same surname and birth date of the user.
+	// We'll require matching profiles to have a birth date (so we don't get matches on just the name).
+	// We'll allow the birth date to be +/- 5 years from our search start of 1900.
+	var params = {
+		'action': 'searchPerson',
+		'LastName': surname,
+		'BirthDate': '1900',
+		'dateInclude': 'both',
+		'dateSpread': 5,
+		'fields': 'Id,Name,FirstName,LastNameCurrent,LastNameAtBirth,BirthDate,DeathDate,BirthLocation'
+	};
+
+	// The POST is asynchronous, so we have to wait for it to return before we have any profile data to work with.
+	// We pass in the action and parameters we're sending to the API.
+	postToAPI( params )
+	.done(function(result) { renderResults(result); })
+	.fail(function(error) {
+		console.log(error);
+		$('#result').html("WikiTree API Error: "+error);
+		$('#json').html('');
+	});
+}
+
+// Generate some formatted HTML to display the Profile information.
+function renderResults(result) {
+	var data = result[0];
+	if (data.status) {
+		// We had some sort of error. 
+		$('#result').html('WikiTree API Error:'+data.status);
+	}
+	else {
+		var surname = $('#surname').val();
+
+		// The returned data should have a "total" for us, as well as a "matches" array (if we matched anything).
+		var html = 'WikiTree API searchPerson Results<br>';
+		html += "Searching for person profiles with the surname \""+surname+"\", born close to 1900, resulted in ";
+		html += data.total + " total matches. Here are "+data.limit+" of them.<br><br>";
+
+		html += "<ul>";
+		for(var idx in data.matches) {
+			item = data.matches[idx];
+			html += "<li>";
+			html += item.FirstName + " <a href=\"https://www.wikitree.com/wiki/"+item.Name+"\">"+item.Name+"</a>, born "+item.BirthDate;
+			if (item.BirthLocation) { html += " in "+item.BirthLocation; }
+			html += "</li>";
+		}
+		html += "</ul>";
+
+		$('#result').html(html);
+		$('#json').html("<pre>"+FormatJSON(result)+"</pre>");
+	}
+}
+
+// Use jQuery's .ajax method to query the WikiTree API for some content.
+function postToAPI(postData) {
+	var ajax = $.ajax({
+		// The WikiTree API endpoint
+		'url': 'https://api.wikitree.com/api.php',
+	
+		// We tell the browser to send any cookie credentials we might have (in case we authenticated).
+		'xhrFields': { withCredentials: true },
+
+		// Doesn't help. Not required from (dev|apps).wikitree.com and api.wikitree.com disallows cross-origin:*
+		//'crossDomain': true,
+
+		// We're POSTing the data so we don't worry about URL size limits and want JSON back.
+		type: 'POST',
+		dataType: 'json',
+		data: postData
+	});
+
+	return ajax;
+}
+
+function clearResults() {
+	$('#result').html('');
+	$('#json').html('');
+}
+
+</script>
+</body>
+</html>

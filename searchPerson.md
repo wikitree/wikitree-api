@@ -44,6 +44,9 @@ Each element has the following fields.
 |Field|Description|
 |-----|-----------|
 |matches|Array of profiles matching the search parameters|
+|total|The total number of matches found|
+|start|The result number the returned matches started with|
+|limit|The number of matching items returned in this batch|
 
 See [getProfile.md](getProfile.md) for the fields in each matched Person profile.
 

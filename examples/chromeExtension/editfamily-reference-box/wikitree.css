@@ -1,0 +1,12 @@
+#wtRefBox {
+    display: none;
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    padding: 10px;
+    background-color: beige;
+    border: 2px solid green;
+}
+.fauxBullet {
+    margin-right: 5px;
+}

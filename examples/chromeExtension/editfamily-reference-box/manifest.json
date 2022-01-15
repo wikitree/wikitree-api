@@ -1,0 +1,25 @@
+{
+    "manifest_version": 2,
+    "name": "WikiTree EditFamily Profile Reference Box",
+    "version": "0.9",
+    "description": "Display a reference box for related profiles when using WikiTree's EditFamily feature to add relatives to an existing profile. This is an example for using the WikiTree API.",
+    "permissions": [ 
+        "activeTab"
+    ],
+    "content_scripts": [
+        { 
+            "matches": [
+                "https://*.wikitree.com/index.php?title=Special:EditFamily&u=*"
+            ],
+            "js": [
+                "jquery-3.5.1.min.js",
+                "jquery.cookie.js",
+                "wikitree.js"
+            ],
+            "css": [
+                "wikitree.css"
+            ],
+            "run_at": "document_idle"
+        }
+    ]
+}
