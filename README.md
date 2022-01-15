@@ -114,14 +114,8 @@ Public profiles can be retrieved without any prior authentication using getProfi
 
 ## Complete/Cookbook Examples
 
-- "Get Family" JavaScript/etc load family circle (ancestors, descendants) via manual walk of ids
-- 	and then via getAncestors/getRelatives/
-
-- "Find oldest grand+ parent"
-
-- "Family Story" - JavaScript/etc family story - bio snippets for nuclear family
-
-- Chrome plugin to do something with WikiTree person profile pages. (JS only)
+- [Chrome Extension](examples/chromeExtension/chromeExtension.md) to add a small reference box to WikiTree EditFamily pages.
+- [Random Tree Walk](examples/randomTreeWalk/randomTreeWalk.html) - wanders around the global tree.
 
 
 ## Apps.WikiTree.com
