@@ -114,7 +114,7 @@ function renderResults($result) {
 		The "key" for getProfile is a WikiTree ID (e.g., Shoshone-1) or a page id (e.g. 30030890).
 		We can also optionally specify a set of fields to return. If omitted, then  a default set is used.
 		You can retrieve all fields with a value of "*".
-		See (<a href="../../getProfile.md">getProfile.md doc page</a>).
+		See (<a href="https://github.com/wikitree/wikitree-api/blob/main/getProfile.md">getProfile.md doc page</a>).
 		<table>
 		<tr><td>Key:</td><td><input type="text" id="key" name="key" value="Shoshone-1" size="20"></td></tr>
 		<tr><td>Fields:</td><td><input type="text" id="fields" name="fields" value="Id,PageId,Name,Derived.LongName,BirthDate,DeathDate" size="80"></td></tr>
