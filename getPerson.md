@@ -67,4 +67,4 @@ curl 'https://api.wikitree.com/api.php?action=getPerson&key=5185&fields=Id,PageI
 
 * [JavaScript](examples/getPerson/javascript.html)
 * Python - web page, command line
-* [PHP](examples/getPerson/phpWebPage.html) (also have command-live example)
+* [PHP](examples/getPerson/phpWebPage.php) (also have command-live example)

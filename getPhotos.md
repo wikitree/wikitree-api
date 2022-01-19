@@ -112,4 +112,4 @@ curl 'https://api.wikitree.com/api.php?action=getPhotos&key=Clemens-1&limit=2&st
 
 * [JavaScript](examples/getPhotos/javascript.html)
 * Python - web page, command line
-* [PHP](examples/getProfile/phpWebPage.html) (also have command-live example)
+* [PHP](examples/getProfile/phpWebPage.php) (also have command-live example)

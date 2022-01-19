@@ -139,4 +139,4 @@ curl 'https://api.wikitree.com/api.php?action=getProfile&key=7146&fields=Id,Page
 
 * [JavaScript](examples/getProfile/javascript.html)
 * Python - web page, command line
-* [PHP](examples/getProfile/phpWebPage.html) (also have command-live example)
+* [PHP](examples/getProfile/phpWebPage.php) (also have command-live example)
