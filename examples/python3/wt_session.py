@@ -214,11 +214,24 @@ class WTSession:
 
         return self._do_post(post_data)
 
-    def get_connected_dna_tests_by_profile(self):
+    def get_connected_dna_tests_by_profile(self, key: Union[str, int]):
         """getConnectedDNATestsByProfile"""
+        post_data = {
+            "action": "getConnectedDNATestsByProfile",
+            "key": key,
+        }
 
-    def get_connected_profiles_by_dna_test(self):
+        return self._do_post(post_data)
+
+    def get_connected_profiles_by_dna_test(self, key: Union[str, int], dna_id: int):
         """getConnectedProfilesByDNATest"""
+        post_data = {
+            "action": "getConnectedProfilesByDNATest",
+            "key": key,
+            "dna_id": dna_id,
+        }
+
+        return self._do_post(post_data)
 
     def get_descendants(
         self,
@@ -244,8 +257,14 @@ class WTSession:
 
         return self._do_post(post_data)
 
-    def get_dna_tests_by_test_taker(self):
+    def get_dna_tests_by_test_taker(self, key: Union[str, int]):
         """getDNATestsByTestTaker"""
+        post_data = {
+            "action": "getDNATestsByTestTaker",
+            "key": key,
+        }
+
+        return self._do_post(post_data)
 
     def get_person(
         self,
@@ -266,9 +285,24 @@ class WTSession:
 
         return self._do_post(post_data)
 
-
-    def get_photos(self):
+    def get_photos(
+        self,
+        key: Union[str, int],
+        limit: int = 10,
+        start: int = 0,
+        order: str = "PageId",
+    ):
         """getPhotos"""
+        post_data = {
+            "action": "getPhotos",
+            "key": key,
+            "resolveRedirect": 1,
+            "limit": limit,
+            "start": start,
+            "order": order,
+        }
+
+        return self._do_post(post_data)
 
     def get_profile(
         self,
