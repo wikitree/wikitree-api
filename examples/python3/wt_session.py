@@ -156,77 +156,146 @@ class WTSession:
         self._authenticated = True
         return self._authenticated
 
-    def get_profile(self, key: Union[str, int], fields: Optional[str] = None) -> dict:
+    def _do_post(self, post_data) -> dict:
         """
-        getProfile
+        A convenience function to do the actual POST.
+        Returns empty dictionary if not authenticated.
         """
-        retval = {}
-        if self._authenticated:
-            post_data = {
-                "action": "getProfile",
-                "key": key,
-                # "fields": "*",
-                "resolveRedirect": 1,
-            }
-            if fields is not None:
-                post_data["fields"] = fields
+        if not self._authenticated:
+            return None
 
-            api_response = self._api_session.post(
-                url=API_URL, data=post_data, auth=("wikitree", "wikitree")
-            )
+        api_response = self._api_session.post(
+            url=API_URL, data=post_data, auth=("wikitree", "wikitree")
+        )
 
-            data = api_response.json()
+        data = api_response.json()
 
-            retval = data[0]["profile"]
+        return data
 
-        return retval
+    def get_ancestors(
+        self,
+        key: Union[str, int],
+        depth: int = 1,
+        fields: Optional[str] = None,
+        bio_format: Optional[str] = None,
+    ):
+        """
+        Uses the getAncestors API call to return one or more
+        person profiles.
+        """
+        post_data = {
+            "action": "getAncestors",
+            "key": key,
+            "depth": depth,
+            "resolveRedirect": 1,
+        }
+        if fields is not None:
+            post_data["fields"] = fields
+        if bio_format is not None:
+            post_data["bioFormat"] = bio_format
 
-    def get_bio(self, key: Union[str, int]) -> dict:
+        return self._do_post(post_data)
+
+    def get_bio(
+        self,
+        key: Union[str, int],
+        bio_format: Optional[str] = None,
+    ) -> dict:
         """
         getBio
         """
-        retval = {}
-        if self._authenticated:
-            query = {
-                "action": "getBio",
-                "key": key,
-            }
-            api_response = self._api_session.post(
-                API_URL, query, auth=("wikitree", "wikitree")
-            )
+        post_data = {
+            "action": "getBio",
+            "key": key,
+            "resolveRedirect": 1,
+        }
+        if bio_format is not None:
+            post_data["bioFormat"] = bio_format
 
-            data = api_response.json()
+        return self._do_post(post_data)
 
-            retval = data
-
-        return retval
-
-    def get_person(self):
-        """getPerson"""
-
-    def get_watchlist(self):
-        """getWatchlist"""
-
-    def get_ancestors(self):
-        """getAncestors"""
-
-    def get_descendants(self):
-        """getDescendants"""
-
-    def get_relatives(self):
-        """getRelatives"""
-
-    def get_privacy_levels(self):
-        """getPrivacyLevels"""
-
-    def get_dna_tests_by_test_taker(self):
-        """getDNATestsByTestTaker"""
+    def get_connected_dna_tests_by_profile(self):
+        """getConnectedDNATestsByProfile"""
 
     def get_connected_profiles_by_dna_test(self):
         """getConnectedProfilesByDNATest"""
 
-    def get_connected_dna_tests_by_profile(self):
-        """getConnectedDNATestsByProfile"""
+    def get_descendants(
+        self,
+        key: Union[str, int],
+        depth: int = 1,
+        fields: Optional[str] = None,
+        bio_format: Optional[str] = None,
+    ):
+        """
+        Uses the getDescendants API call to return one or more
+        person profiles.
+        """
+        post_data = {
+            "action": "getDescendants",
+            "key": key,
+            "depth": depth,
+            "resolveRedirect": 1,
+        }
+        if fields is not None:
+            post_data["fields"] = fields
+        if bio_format is not None:
+            post_data["bioFormat"] = bio_format
+
+        return self._do_post(post_data)
+
+    def get_dna_tests_by_test_taker(self):
+        """getDNATestsByTestTaker"""
+
+    def get_person(
+        self,
+        key: Union[str, int],
+        fields: Optional[str] = None,
+        bio_format: Optional[str] = None,
+    ):
+        """getPerson"""
+        post_data = {
+            "action": "getPerson",
+            "key": key,
+            "resolveRedirect": 1,
+        }
+        if fields is not None:
+            post_data["fields"] = fields
+        if bio_format is not None:
+            post_data["bioFormat"] = bio_format
+
+        return self._do_post(post_data)
+
+
+    def get_photos(self):
+        """getPhotos"""
+
+    def get_profile(
+        self,
+        key: Union[str, int],
+        fields: Optional[str] = None,
+        bio_format: Optional[str] = None,
+    ) -> dict:
+        """
+        getProfile
+        """
+        post_data = {
+            "action": "getProfile",
+            "key": key,
+            "resolveRedirect": 1,
+        }
+        if fields is not None:
+            post_data["fields"] = fields
+        if bio_format is not None:
+            post_data["bioFormat"] = bio_format
+
+        return self._do_post(post_data)
+
+    def get_relatives(self):
+        """getRelatives"""
+
+    def get_watchlist(self):
+        """getWatchlist"""
 
     def search_person(self):
         """searchPerson"""
@@ -251,6 +320,12 @@ def main():
 
     bio = wt_session.get_bio(wt_session.user_name)
     pprint(bio)
+
+    ancestors = wt_session.get_ancestors(wt_session.user_name)
+    pprint(ancestors)
+
+    descendants = wt_session.get_descendants(wt_session.user_name)
+    pprint(descendants)
 
 
 if __name__ == "__main__":
