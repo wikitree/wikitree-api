@@ -173,6 +173,7 @@ class WTSession:
             url=API_URL, data=post_data, auth=("wikitree", "wikitree")
         )
 
+        # print(api_response.status_code)
         data = api_response.json()
 
         return data
@@ -188,7 +189,7 @@ class WTSession:
         Uses the getAncestors API call to return one or more
         person profiles.
 
-        :param key: "WikiTree ID" or "User ID"
+        :param key: Wanted WikiTree_ID or User_ID
         :param depth: Number of generations
         :param fields: Comma separated list of required fields
         :param bio_format: "wiki", "html", or "both"
@@ -215,7 +216,7 @@ class WTSession:
         Uses the getBio API call to return the bio of the given
         profile.
 
-        :param key: "WikiTree ID" or "User ID"
+        :param key: Wanted WikiTree_ID or User_ID
         :param bio_format: "wiki", "html", or "both"
         """
         post_data = {
@@ -232,7 +233,7 @@ class WTSession:
         """
         getConnectedDNATestsByProfile
 
-        :param key: "WikiTree ID" or "User ID"
+        :param key: Wanted WikiTree_ID or User_ID
         """
         post_data = {
             "action": "getConnectedDNATestsByProfile",
@@ -245,7 +246,8 @@ class WTSession:
         """
         getConnectedProfilesByDNATest
 
-        :param key: "WikiTree ID" or "User ID"
+        :param key: Wanted WikiTree_ID or User_ID
+        :dna_id: ID of DNA test
         """
         post_data = {
             "action": "getConnectedProfilesByDNATest",
@@ -266,7 +268,7 @@ class WTSession:
         Uses the getDescendants API call to return one or more
         person profiles.
 
-        :param key: "WikiTree ID" or "User ID"
+        :param key: Wanted WikiTree_ID or User_ID
         :param depth: Number of generations
         :param fields: Comma separated list of required fields
         :param bio_format: "wiki", "html", or "both"
@@ -288,7 +290,7 @@ class WTSession:
         """
         getDNATestsByTestTaker
 
-        :param key: "WikiTree ID" or "User ID"
+        :param key: Wanted WikiTree_ID or User_ID
         """
         post_data = {
             "action": "getDNATestsByTestTaker",
@@ -306,7 +308,7 @@ class WTSession:
         """
         Uses the getPerson API call to return a person profile.
 
-        :param key: "WikiTree ID" or "User ID"
+        :param key: Wanted WikiTree_ID or User_ID
         :param fields: Comma separated list of required fields
         :param bio_format: "wiki", "html", or "both"
         """
@@ -333,10 +335,10 @@ class WTSession:
         Uses the getPhotos API call to return a list of the
         photos attached to a profile.
 
-        :param key: "WikiTree ID" or "User ID"
+        :param key: Wanted WikiTree_ID or User_ID
         :param limit: Number of photos to return
         :param start: The starting position in the list of photos
-        :param order: 
+        :param order: "PageId", "Uploaded", "ImageName", or "Date"
         """
         post_data = {
             "action": "getPhotos",
@@ -358,7 +360,7 @@ class WTSession:
         """
         getProfile
 
-        :param key: "WikiTree ID" or "Page ID"
+        :param key: Wanted WikiTree_ID or Page_ID
         :param fields: Comma separated list of required fields
         :param bio_format: "wiki", "html", or "both"
         """
@@ -386,6 +388,14 @@ class WTSession:
     ):
         """
         getRelatives
+
+        :param key: Wanted WikiTree_ID or User_ID
+        :param fields: Comma separated list of required fields
+        :param bio_format: "wiki", "html", or "both"
+        :param get_parents: Whether to get the parents
+        :param get_children: Whether to get the children
+        :param get_siblings: Whether to get the siblings
+        :param get_spouses: Whether to get the spouses
         """
         post_data = {
             "action": "getRelatives",
@@ -434,10 +444,40 @@ class WTSession:
 
         return self._do_post(post_data)
 
-    def search_person(self):
+    def search_person(self, **kwargs):
         """
         searchPerson
+
+        keyword args should be from:
+            FirstName
+            LastName
+            BirthDate
+            DeathDate
+            RealName
+            LastNameCurrent
+            BirthLocation
+            DeathLocation
+            Gender
+            fatherFirstName
+            fatherLastName
+            motherFirstName
+            motherLastName
+            watchlist
+            dateInclude
+            dateSpread
+            centuryTypo
+            isLiving
+            skipVariants
+            lastNameMatch
+            sort
+            secondarySort
+            limit
+            start
+            fields
         """
+        post_data = {"action": "searchPerson"}
+        post_data.update(kwargs)
+        return self._do_post(post_data)
 
 
 def main():
@@ -465,16 +505,29 @@ def main():
     # The session now has it's user_name and user_id attributes set,
     # let's use them to perform some queries
     profile = wt_session.get_profile(wt_session.user_name, fields=fields)
+    print("\n#### get_profile result ####")
     pprint(profile)
 
     bio = wt_session.get_bio(wt_session.user_name)
+    print("\n#### get_bio result ####")
     pprint(bio)
 
     ancestors = wt_session.get_ancestors(wt_session.user_name, fields=fields)
+    print("\n#### get_ancestors result ####")
     pprint(ancestors)
 
     descendants = wt_session.get_descendants(wt_session.user_name, fields=fields)
+    print("\n#### get_decendants result ####")
     pprint(descendants)
+
+    search = wt_session.search_person(
+        FirstName=profile[0]["profile"]["FirstName"],
+        LastName=profile[0]["profile"]["LastNameCurrent"],
+        # BirthDate=profile[0]["profile"]["BirthDate"],
+        fields=fields,
+    )
+    print("\n#### search_person result ####")
+    pprint(search)
 
 
 if __name__ == "__main__":
