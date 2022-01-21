@@ -47,6 +47,11 @@ class WTSession:
         """Return the user ID of the authenticated user."""
         return self._user_id
 
+    @property
+    def email(self) -> str:
+        """Return the email of the authenticated user."""
+        return self._email
+
     def authenticate(self, email: str, password: str) -> bool:
         """
         Takes an email address and password and attempts to authenticate. Returns
@@ -182,6 +187,11 @@ class WTSession:
         """
         Uses the getAncestors API call to return one or more
         person profiles.
+
+        :param key: "WikiTree ID" or "User ID"
+        :param depth: Number of generations
+        :param fields: Comma separated list of required fields
+        :param bio_format: "wiki", "html", or "both"
         """
         post_data = {
             "action": "getAncestors",
@@ -202,7 +212,11 @@ class WTSession:
         bio_format: Optional[str] = None,
     ) -> dict:
         """
-        getBio
+        Uses the getBio API call to return the bio of the given
+        profile.
+
+        :param key: "WikiTree ID" or "User ID"
+        :param bio_format: "wiki", "html", or "both"
         """
         post_data = {
             "action": "getBio",
@@ -215,7 +229,11 @@ class WTSession:
         return self._do_post(post_data)
 
     def get_connected_dna_tests_by_profile(self, key: Union[str, int]):
-        """getConnectedDNATestsByProfile"""
+        """
+        getConnectedDNATestsByProfile
+
+        :param key: "WikiTree ID" or "User ID"
+        """
         post_data = {
             "action": "getConnectedDNATestsByProfile",
             "key": key,
@@ -224,7 +242,11 @@ class WTSession:
         return self._do_post(post_data)
 
     def get_connected_profiles_by_dna_test(self, key: Union[str, int], dna_id: int):
-        """getConnectedProfilesByDNATest"""
+        """
+        getConnectedProfilesByDNATest
+
+        :param key: "WikiTree ID" or "User ID"
+        """
         post_data = {
             "action": "getConnectedProfilesByDNATest",
             "key": key,
@@ -243,6 +265,11 @@ class WTSession:
         """
         Uses the getDescendants API call to return one or more
         person profiles.
+
+        :param key: "WikiTree ID" or "User ID"
+        :param depth: Number of generations
+        :param fields: Comma separated list of required fields
+        :param bio_format: "wiki", "html", or "both"
         """
         post_data = {
             "action": "getDescendants",
@@ -258,7 +285,11 @@ class WTSession:
         return self._do_post(post_data)
 
     def get_dna_tests_by_test_taker(self, key: Union[str, int]):
-        """getDNATestsByTestTaker"""
+        """
+        getDNATestsByTestTaker
+
+        :param key: "WikiTree ID" or "User ID"
+        """
         post_data = {
             "action": "getDNATestsByTestTaker",
             "key": key,
@@ -272,7 +303,13 @@ class WTSession:
         fields: Optional[str] = None,
         bio_format: Optional[str] = None,
     ):
-        """getPerson"""
+        """
+        Uses the getPerson API call to return a person profile.
+
+        :param key: "WikiTree ID" or "User ID"
+        :param fields: Comma separated list of required fields
+        :param bio_format: "wiki", "html", or "both"
+        """
         post_data = {
             "action": "getPerson",
             "key": key,
@@ -292,7 +329,15 @@ class WTSession:
         start: int = 0,
         order: str = "PageId",
     ):
-        """getPhotos"""
+        """
+        Uses the getPhotos API call to return a list of the
+        photos attached to a profile.
+
+        :param key: "WikiTree ID" or "User ID"
+        :param limit: Number of photos to return
+        :param start: The starting position in the list of photos
+        :param order: 
+        """
         post_data = {
             "action": "getPhotos",
             "key": key,
@@ -312,6 +357,10 @@ class WTSession:
     ) -> dict:
         """
         getProfile
+
+        :param key: "WikiTree ID" or "Page ID"
+        :param fields: Comma separated list of required fields
+        :param bio_format: "wiki", "html", or "both"
         """
         post_data = {
             "action": "getProfile",
@@ -325,14 +374,70 @@ class WTSession:
 
         return self._do_post(post_data)
 
-    def get_relatives(self):
-        """getRelatives"""
+    def get_relatives(
+        self,
+        key: Union[str, int],
+        fields: Optional[str] = None,
+        bio_format: Optional[str] = None,
+        get_parents: bool = True,
+        get_children: bool = True,
+        get_siblings: bool = True,
+        get_spouses: bool = True,
+    ):
+        """
+        getRelatives
+        """
+        post_data = {
+            "action": "getRelatives",
+            "key": key,
+            "getParents": int(get_parents),
+            "getChildren": int(get_children),
+            "getSiblings": int(get_siblings),
+            "getSpouses": int(get_spouses),
+        }
+        if fields is not None:
+            post_data["fields"] = fields
+        if bio_format is not None:
+            post_data["bioFormat"] = bio_format
 
-    def get_watchlist(self):
-        """getWatchlist"""
+        return self._do_post(post_data)
+
+    def get_watchlist(
+        self,
+        limit: int = 100,
+        offset: int = 0,
+        order: str = "user_id",
+        get_person: bool = True,
+        get_space: bool = True,
+        only_living: bool = False,
+        exclude_living: bool = False,
+        fields: Optional[str] = None,
+        bio_format: Optional[str] = None,
+    ):
+        """
+        getWatchlist
+        """
+        post_data = {
+            "action": "getWatchlist",
+            "limit": limit,
+            "offset": offset,
+            "order": order,
+            "getPerson": int(get_person),
+            "getSpace": int(get_space),
+            "onlyLiving": int(only_living),
+            "excludeLiving": int(exclude_living),
+        }
+        if fields is not None:
+            post_data["fields"] = fields
+        if bio_format is not None:
+            post_data["bioFormat"] = bio_format
+
+        return self._do_post(post_data)
 
     def search_person(self):
-        """searchPerson"""
+        """
+        searchPerson
+        """
 
 
 def main():
@@ -341,24 +446,34 @@ def main():
     performs some queries.
     """
 
+    # Create the WikiTree session object.
     wt_session = WTSession()
+
+    # Loop until we have a successful authentication
     success = False
     while not success:
         email = input("Email: ")
         password = getpass("Password: ")
-
         success = wt_session.authenticate(email=email, password=password)
 
-    profile = wt_session.get_profile(wt_session.user_name)
+    # Leave fields=None if you want default fields
+    # Set fields="*" if you want them all
+    # Otherwise we want a comma-separated string of the wanted fields,
+    # and I prefer to construct it from a list.
+    fields = ",".join(["FirstName", "MiddleName", "LastNameCurrent", "BirthDate"])
+
+    # The session now has it's user_name and user_id attributes set,
+    # let's use them to perform some queries
+    profile = wt_session.get_profile(wt_session.user_name, fields=fields)
     pprint(profile)
 
     bio = wt_session.get_bio(wt_session.user_name)
     pprint(bio)
 
-    ancestors = wt_session.get_ancestors(wt_session.user_name)
+    ancestors = wt_session.get_ancestors(wt_session.user_name, fields=fields)
     pprint(ancestors)
 
-    descendants = wt_session.get_descendants(wt_session.user_name)
+    descendants = wt_session.get_descendants(wt_session.user_name, fields=fields)
     pprint(descendants)
 
 
