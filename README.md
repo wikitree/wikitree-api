@@ -110,7 +110,7 @@ See [Examples](examples/examples.md).
 
 Public profiles can be retrieved without any prior authentication using getProfile, getAncestors, etc.. However if you want to retrieve data for a [private](https://www.wikitree.com/wiki/Help:Privacy) profile, then you need to first authenticate as a WikiTree.com member. Then you'll be able to retrieve data for any profile which has that member on its [Trusted List](https://www.wikitree.com/wiki/Help:Trusted_List).
 
-[Authentication](authenciation.md) is a multi-step process in which the editing/viewing user goes to WikiTree.com to provide their credentials and return to the API application with a token. The application can then use the token to validate the user.
+[Authentication](authentication.md) is a multi-step process in which the editing/viewing user goes to WikiTree.com to provide their credentials and return to the API application with a token. The application can then use the token to validate the user.
 
 ## Complete/Cookbook Examples
 
