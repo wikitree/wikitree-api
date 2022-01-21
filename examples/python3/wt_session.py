@@ -2,13 +2,15 @@
 This module defines a class that manages an authenticated session
 with the WikiTree API.
 
-It allows you to log in and perform various queries.
+It allows you to log in and perform various queries. These are documented at:
+    https://github.com/wikitree/wikitree-api
 
 It requires python3 and the requests library.
 """
 
 # Standard Imports
 from getpass import getpass
+from json.decoder import JSONDecodeError
 import re
 from pprint import pprint
 from typing import Optional, Union
@@ -31,7 +33,7 @@ class WTSession:
     def __init__(self) -> None:
         self._email = ""
         self._authenticated = False
-        self._api_session = None
+        self._session = None
         self._authcode = None
         self._wt_cookie = None
         self._user_name = ""
@@ -67,7 +69,7 @@ class WTSession:
 
         # We use a Session to hold the state (via cookie jar) for the API queries
         print("Starting Session")
-        self._api_session = requests.Session()
+        self._session = requests.Session()
 
         # Step 1 - POST the clientLogin action with our member credentials.
         #
@@ -76,7 +78,7 @@ class WTSession:
         # initial response (still on api.wikitree.com)
         # and not the redirected-to destination.
         #
-        # Note that the api_response here will, on successful login, be a
+        # Note that the response here will, on successful login, be a
         # redirection. In a browser interaction we'd include a returnURL
         # value in post_data to send the browser back to our app. Here
         # we're just capturing the authcode from the Location redirection
@@ -88,35 +90,34 @@ class WTSession:
             "wpEmail": self._email,
             "wpPassword": password,
         }
-        # print("POSTing clientLogin...")
-        api_response = self._api_session.post(
+
+        response = self._session.post(
             API_URL,
             data=post_data,
             allow_redirects=False,
-            auth=("wikitree", "wikitree"),
+            # auth=("wikitree", "wikitree"),
         )
 
         # If we have a "Location" redirection with an authcode value as our response, then
         # the login was successful. Otherwise, we failed.
-        if (api_response.status_code != 302) or (
-            api_response.headers["Location"] is None
-        ):
+        location = response.headers.get("Location")
+        if (response.status_code != 302) or (location is None):
             print("\tfailed - clientLogin POST did not return expected 302 Redirect.")
 
             # On failure, the response content will be a redisplay of the web page with the
             # API Client Login form.
-            # print "Response status_code = "+str(api_response.status_code)
-            # print ("Header: "+str(api_response.headers))
-            # print ("Content:"+api_response.text)
+            # print "Response status_code = "+str(response.status_code)
+            # print ("Header: "+str(response.headers))
+            # print ("Content:"+response.text)
 
             self._authenticated = False
             return self._authenticated
 
-        matches = re.search("authcode=(.*)", api_response.headers["Location"])
+        matches = re.search("authcode=(.*)", location)
         if matches is None:
             print("\tfailed - clientLogin POST did not return authcode")
-            print("\t\tResponse status_code = " + str(api_response.status_code))
-            print("\t\tHeader: " + str(api_response.headers))
+            print("\t\tResponse status_code = " + str(response.status_code))
+            print("\t\tHeader: " + str(response.headers))
 
             self._authenticated = False
             return self._authenticated
@@ -127,16 +128,16 @@ class WTSession:
         # at api.wikitree.com. Since we use the same Session for the post, the cookies are all
         # saved. A success here is a 200 and we'll have WikiTree session cookies.
         post_data = {"action": "clientLogin", "authcode": self._authcode}
-        api_response = self._api_session.post(
+        response = self._session.post(
             API_URL,
             data=post_data,
             allow_redirects=False,
-            auth=("wikitree", "wikitree"),
+            # auth=("wikitree", "wikitree"),
         )
-        if api_response.status_code != 200:
+        if response.status_code != 200:
             print("clientLogin(authcode) failed.")
-            print("Response status_code = " + str(api_response.status_code))
-            print("Header: " + str(api_response.headers))
+            print("Response status_code = " + str(response.status_code))
+            print("Header: " + str(response.headers))
             self._authenticated = False
             return self._authenticated
 
@@ -147,34 +148,57 @@ class WTSession:
         #   'wikidb_wtb_UserName': '<<WikiTree ID>>',
         #   'wikitree_wtb_UserID': '<<WikiTree user_id>>'
         # }
-        self._wt_cookie = self._api_session.cookies.get_dict()
+        self._wt_cookie = self._session.cookies.get_dict()
         if self._wt_cookie is None:
             print("clientLogin(authcode) failed -- No Cookies.")
             self._authenticated = False
             return self._authenticated
 
-        self._user_name = self._wt_cookie["wikidb_wtb_UserName"]
-        self._user_id = self._wt_cookie["wikidb_wtb_UserID"]
+        # The successful response looks something like 
+        # {
+        #     "clientLogin": {
+        #         "result": "Success",
+        #         "userid": 12345678,
+        #         "username": "Fakename-1",
+        #     }
+        # }
+        client_login_response = response.json().get("clientLogin")
+        self._user_name = client_login_response.get("username")
+        self._user_id = client_login_response.get("userid")
 
         print(f"Authentication succeeded: {self._user_name} {self._user_id}")
 
         self._authenticated = True
         return self._authenticated
 
-    def _do_post(self, post_data) -> dict:
+    def _do_post(self, post_data: dict) -> dict:
         """
         A convenience function to do the actual POST.
-        Returns empty dictionary if not authenticated.
-        """
-        if not self._authenticated:
-            return None
+        Returns empty dictionary if not authenticated. This is strictly
+        not necessary for most queries, and you could remove the
+        test for authentication and it would work mostly as
+        expected.
 
-        api_response = self._api_session.post(
-            url=API_URL, data=post_data, auth=("wikitree", "wikitree")
+        :param post_data: A dictionary with at least the "action" key and
+                          other keys as necessary.
+        """
+        data = {}
+
+        if not self._authenticated:
+            return data
+
+        response = self._session.post(
+            url=API_URL,
+            data=post_data,
+            # auth=("wikitree", "wikitree"),
         )
 
-        # print(api_response.status_code)
-        data = api_response.json()
+        try:
+            # print(response.status_code)
+            data = response.json()
+        except JSONDecodeError:
+            # print("No data returned.")
+            pass
 
         return data
 
