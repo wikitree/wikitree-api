@@ -9,28 +9,93 @@ It requires python3 and the requests library.
 """
 
 # Standard Imports
+from enum import Enum
 from getpass import getpass
 from json.decoder import JSONDecodeError
-import re
+import logging
 from pprint import pprint
+import re
+import sys
 from typing import Optional, Union
 
 # Third party imports
 import requests
 
+logging.basicConfig(level=logging.ERROR)
+LOGGER = logging.getLogger(__name__)
+LOGGER.setLevel(logging.ERROR)
 
 # Define the WikiTree API endpoint
 API_URL = "https://api.wikitree.com/api.php"
 
+VALID_SEARCH_ARGS = [
+    "FirstName",
+    "LastName",
+    "BirthDate",
+    "DeathDate",
+    "RealName",
+    "LastNameCurrent",
+    "BirthLocation",
+    "DeathLocation",
+    "Gender",
+    "fatherFirstName",
+    "fatherLastName",
+    "motherFirstName",
+    "motherLastName",
+    "watchlist",
+    "dateInclude",
+    "dateSpread",
+    "centuryTypo",
+    "isLiving",
+    "skipVariants",
+    "lastNameMatch",
+    "sort",
+    "secondarySort",
+    "limit",
+    "start",
+    "fields",
+]
+
+
+class PhotoOrder(Enum):
+    """An enumeration for all valid photo order values."""
+
+    PAGE_ID = "PageId"
+    UPLOADED = "Uploaded"
+    IMAGE_NAME = "ImageName"
+    DATE = "Date"
+
+
+# The default photo order.
+PHOTO_ORDER_DEFAULT = PhotoOrder.PAGE_ID
+
+
+class WatchlistOrder(Enum):
+    """An enumeration for all valid watchlist order values."""
+
+    USER_ID = "user_id"
+    USER_NAME = "user_name"
+    USER_LAST_NAME_CURRENT = "user_last_name_current"
+    USER_BIRTH_DATE = "user_birth_date"
+    USER_DEATH_DATE = "user_death_date"
+    PAGE_TOUCHED = "page_touched"
+
+
+# The default watchlist order
+WATCHLIST_ORDER_DEFAULT = WatchlistOrder.USER_ID
+
 
 class WTSession:
     """
-    A class to manage an authenticated session on the WikiTree API.
+    A class to manage a session on the WikiTree API.
+    If authenticated, manages the session cookie to allow
+    calls the require it.
 
-    Provides convenience functions for each of the API calls
+    Provides convenience functions for each of the API calls.
     """
 
     def __init__(self) -> None:
+        """Just default some values."""
         self._email = ""
         self._authenticated = False
         self._session = None
@@ -54,6 +119,11 @@ class WTSession:
         """Return the email of the authenticated user."""
         return self._email
 
+    @property
+    def authenticated(self) -> bool:
+        """Returns whether you are logged in or not."""
+        return self._authenticated
+
     def authenticate(self, email: str, password: str) -> bool:
         """
         Takes an email address and password and attempts to authenticate. Returns
@@ -64,11 +134,8 @@ class WTSession:
         :returns: Boolean indicating success.
         """
 
-        # Deliberately not storing password as instance variable
-        self._email = email
-
         # We use a Session to hold the state (via cookie jar) for the API queries
-        print("Starting Session")
+        LOGGER.debug("Starting Session")
         self._session = requests.Session()
 
         # Step 1 - POST the clientLogin action with our member credentials.
@@ -87,7 +154,7 @@ class WTSession:
         post_data = {
             "action": "clientLogin",
             "doLogin": 1,
-            "wpEmail": self._email,
+            "wpEmail": email,
             "wpPassword": password,
         }
 
@@ -100,28 +167,36 @@ class WTSession:
 
         # If we have a "Location" redirection with an authcode value as our response, then
         # the login was successful. Otherwise, we failed.
+
+        # Looking for the "Location"
         location = response.headers.get("Location")
         if (response.status_code != 302) or (location is None):
-            print("\tfailed - clientLogin POST did not return expected 302 Redirect.")
+            LOGGER.error(
+                "Authentication failed - clientLogin POST did not return expected 302 Redirect."
+            )
 
             # On failure, the response content will be a redisplay of the web page with the
             # API Client Login form.
-            # print "Response status_code = "+str(response.status_code)
-            # print ("Header: "+str(response.headers))
-            # print ("Content:"+response.text)
+            LOGGER.info("Response status_code = %d", response.status_code)
+            LOGGER.info("Header: %s", response.headers)
+            # LOGGER.error("Content: %s", response.text)
 
             self._authenticated = False
             return self._authenticated
 
+        # Now looking for authcode
         matches = re.search("authcode=(.*)", location)
         if matches is None:
-            print("\tfailed - clientLogin POST did not return authcode")
-            print("\t\tResponse status_code = " + str(response.status_code))
-            print("\t\tHeader: " + str(response.headers))
+            LOGGER.error(
+                "Authentication failed - clientLogin POST did not return authcode"
+            )
+            LOGGER.info("Response status_code = %d", response.status_code)
+            LOGGER.info("Header: %s", response.headers)
 
             self._authenticated = False
             return self._authenticated
 
+        # The authcode is the first match in the regexp above.
         self._authcode = matches.group(1)
 
         # Step 2 - POST back the authcode we got. This completes the login/session setup
@@ -135,9 +210,12 @@ class WTSession:
             # auth=("wikitree", "wikitree"),
         )
         if response.status_code != 200:
-            print("clientLogin(authcode) failed.")
-            print("Response status_code = " + str(response.status_code))
-            print("Header: " + str(response.headers))
+            LOGGER.error(
+                "Authentication failed - clientLogin(authcode) POST did not return SUCCESS."
+            )
+            LOGGER.info("Response status_code = %d", response.status_code)
+            LOGGER.error("Header: %s", response.headers)
+
             self._authenticated = False
             return self._authenticated
 
@@ -150,11 +228,17 @@ class WTSession:
         # }
         self._wt_cookie = self._session.cookies.get_dict()
         if self._wt_cookie is None:
-            print("clientLogin(authcode) failed -- No Cookies.")
+            LOGGER.error(
+                "Authentication failed - clientLogin(authcode) returned no Cookies."
+            )
+
             self._authenticated = False
             return self._authenticated
 
-        # The successful response looks something like 
+        # All OK, we're in - save our success.
+        self._authenticated = True
+
+        # The successful response looks something like:
         # {
         #     "clientLogin": {
         #         "result": "Success",
@@ -162,29 +246,35 @@ class WTSession:
         #         "username": "Fakename-1",
         #     }
         # }
+        #
+        # Let's get it to set username and ID.
         client_login_response = response.json().get("clientLogin")
+
+        # Deliberately not storing password as instance variable
+        self._email = email
         self._user_name = client_login_response.get("username")
         self._user_id = client_login_response.get("userid")
 
-        print(f"Authentication succeeded: {self._user_name} {self._user_id}")
+        LOGGER.debug(
+            f"Authentication succeeded: {self._email}, {self._user_name}, {self._user_id}"
+        )
 
-        self._authenticated = True
         return self._authenticated
 
-    def _do_post(self, post_data: dict) -> dict:
+    def _do_post(self, post_data: dict, need_auth: bool = False) -> dict:
         """
-        A convenience function to do the actual POST.
-        Returns empty dictionary if not authenticated. This is strictly
-        not necessary for most queries, and you could remove the
-        test for authentication and it would work mostly as
-        expected.
+        A convenience function to do the actual POST. Returns empty dictionary
+        if not authenticated and the query specifically needs you to be logged
+        in. Being logged in is strictly not necessary for most queries but
+        will limit what data you can see on profiles with restricted privacy.
 
         :param post_data: A dictionary with at least the "action" key and
                           other keys as necessary.
+        :param need_auth: A flag to say whether the query needs authentication.
         """
         data = {}
 
-        if not self._authenticated:
+        if need_auth and not self._authenticated:
             return data
 
         response = self._session.post(
@@ -353,7 +443,7 @@ class WTSession:
         key: Union[str, int],
         limit: int = 10,
         start: int = 0,
-        order: str = "PageId",
+        order: Union[PhotoOrder, str] = PhotoOrder.PAGE_ID,
     ):
         """
         Uses the getPhotos API call to return a list of the
@@ -362,15 +452,31 @@ class WTSession:
         :param key: Wanted WikiTree_ID or User_ID
         :param limit: Number of photos to return
         :param start: The starting position in the list of photos
-        :param order: "PageId", "Uploaded", "ImageName", or "Date"
+        :param order: The order in which to return the results. Can be one
+                      of the PhotoOrder enumerations or the corresponding string.
         """
+
+        if isinstance(order, str):
+            # check it's valid
+            try:
+                photo_order = PhotoOrder(order).value
+            except ValueError:
+                photo_order = PHOTO_ORDER_DEFAULT.value
+        elif isinstance(order, PhotoOrder):
+            # convert to string
+            photo_order = order.value
+        else:
+            # warn and choose default
+            LOGGER.error("Invalid photo order (%s), choosing default.", order)
+            photo_order = PHOTO_ORDER_DEFAULT.value
+
         post_data = {
             "action": "getPhotos",
             "key": key,
             "resolveRedirect": 1,
             "limit": limit,
             "start": start,
-            "order": order,
+            "order": photo_order,
         }
 
         return self._do_post(post_data)
@@ -440,7 +546,7 @@ class WTSession:
         self,
         limit: int = 100,
         offset: int = 0,
-        order: str = "user_id",
+        order: Union[WatchlistOrder, str] = WatchlistOrder.USER_ID,
         get_person: bool = True,
         get_space: bool = True,
         only_living: bool = False,
@@ -451,11 +557,25 @@ class WTSession:
         """
         getWatchlist
         """
+        if isinstance(order, str):
+            # check it's valid
+            try:
+                watchlist_order = WatchlistOrder(order).value
+            except ValueError:
+                watchlist_order = WATCHLIST_ORDER_DEFAULT.value
+        elif isinstance(order, WatchlistOrder):
+            # convert to string
+            watchlist_order = order.value
+        else:
+            # warn and choose default
+            LOGGER.error("Invalid watchlist order (%s), choosing default.", order)
+            watchlist_order = WATCHLIST_ORDER_DEFAULT.value
+
         post_data = {
             "action": "getWatchlist",
             "limit": limit,
             "offset": offset,
-            "order": order,
+            "order": watchlist_order,
             "getPerson": int(get_person),
             "getSpace": int(get_space),
             "onlyLiving": int(only_living),
@@ -466,7 +586,7 @@ class WTSession:
         if bio_format is not None:
             post_data["bioFormat"] = bio_format
 
-        return self._do_post(post_data)
+        return self._do_post(post_data=post_data, need_auth=True)
 
     def search_person(self, **kwargs):
         """
@@ -500,7 +620,13 @@ class WTSession:
             fields
         """
         post_data = {"action": "searchPerson"}
-        post_data.update(kwargs)
+        # We could do an unconditional post_data.update(kwargs) here,
+        # instead, let's make sure we only have valid arguments.
+        for key, value in kwargs.items():
+            if key in VALID_SEARCH_ARGS:
+                post_data[key] = value
+            else:
+                LOGGER.error("Invalid search argument, ignoring: %s", key)
         return self._do_post(post_data)
 
 
@@ -516,7 +642,9 @@ def main():
     # Loop until we have a successful authentication
     success = False
     while not success:
-        email = input("Email: ")
+        email = input("Email (or quit): ")
+        if email.lower() == "quit":
+            sys.exit(0)
         password = getpass("Password: ")
         success = wt_session.authenticate(email=email, password=password)
 
