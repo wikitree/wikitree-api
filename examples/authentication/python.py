@@ -97,7 +97,7 @@ print "clientLogin succeeded: authcode="+authcode
 ##########
 print "POSTing clientLogin(authcode)"
 postData = { 'action': 'clientLogin', 'authcode': authcode }
-apiResponse = apiSession.post(API_URL, data=postData, allow_redirects=False, auth=('wikitree','wikitree'))
+apiResponse = apiSession.post(API_URL, data=postData, allow_redirects=False)
 if (apiResponse.status_code != 200):
     print "clientLogin(authcode) failed."
     print "Response status_code = "+str(apiResponse.status_code)

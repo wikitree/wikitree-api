@@ -162,7 +162,6 @@ class WTSession:
             API_URL,
             data=post_data,
             allow_redirects=False,
-            # auth=("wikitree", "wikitree"),
         )
 
         # If we have a "Location" redirection with an authcode value as our response, then
