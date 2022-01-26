@@ -6,7 +6,7 @@ The getAncestors action returns one or more person profiles like those from [get
 
 |Param|Value|
 |-----|-----|
-|action|getProfile|
+|action|getAncestors|
 |key|WikiTree ID or Id|
 |depth|The number of generations back to follow the parent ids|
 |fields|Optional comma-separated list of fields to return for each profile|
