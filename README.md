@@ -77,6 +77,7 @@ curl 'https://api.wikitree.com/api.php?action=getProfile&key=Burk-1'
 |[getDNATestsByTestTaker](getDNATestsByTestTaker.md)|Get the list of DNA Tests taken by a profile|
 |[getConnectedProfilesByDNATest](getConnectedProfilesByDNATest.md)|Get the profiles connected via DNA test|
 |[getConnectedDNATestsByProfile](getConnectedDNATestsByProfile.md)|Get the DNA Tests connected to a profile|
+|[getCategories](getCAtegories.md)|Get the Categories connected to a profile|
 |[searchPerson](searchPerson.md)|Search for person profiles|
 |[clientLogin](authentication.md)|Authenticate as a WikiTree.com member|
 

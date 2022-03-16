@@ -92,6 +92,8 @@ The relative fields are arrays of Profile items, indexed by Id, each with the sa
 
 You can also request **Managers** or **TrustedList**. Either one returns an array of profile data that includes Id, Page Id, and Name for the person on the list. For TrustedList, the list is all people on the Trusted List of the profile and each entry includes an "IsManager" field, set to 1 if the person is a manager and zero otherwise. For Managers, only those that are managers are included.
 
+Finally, you can request **Categories**. The returned field is an array of the Category titles which are connected to the proifle.
+
 ### DataStatus Details
 
 Certain, Guess, Blank, etc.

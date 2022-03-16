@@ -37,6 +37,9 @@
 ## getConnectedDNATestsByProfile
 * [JavaScript](getConnectedDNATestsByProfile/javascript.html)
 
+## getCategories
+* [JavaScript](getCategories/javascript.html)
+
 ## searchPerson
 * [JavaScript](searchPerson/javascript.html)
 
