@@ -19,6 +19,23 @@ The "key" parameter is used to indicate the DNA test taker profile. This can be 
 
 This is the integer ID that specifies a DNA test assigned to the key's test taker which should be used to find connected profiles.
 
+The options are:
+
+|ID|Test Type|
+|--|---------|
+|1|23andMe|
+|2|AncestryDNA|
+|3|AncestryDNA Paternal Lineage|
+|4|AncestryDNA Maternal Lineage|
+|6|Family Tree DNA Family Finder|
+|7|Family Tree DNA mtDNA|
+|8|Family Tree DNA yDNA|
+|9|Other auDNA|
+|10|Other mtDNA|
+|11|Other yDNA|
+|12|MyHeritage DNA|
+|13|Living DNA|
+
 
 ## Results
 
