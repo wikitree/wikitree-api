@@ -10,17 +10,15 @@ The searchPerson action returns one or more sets person profiles like those from
 |LastName|Last Name|
 |BirthDate|Birth Date (YYYY-MM-DD)|
 |DeathDate|Death Date (YYYY-MM-DD)|
-|RealName|Real/Colloquial Name|
+|RealName|Real/Preferred Name|
 |LastNameCurrent|Current Last Name|
 |BirthLocation|Birth Location|
 |DeathLocation|Death Location|
-|Gender|Gender (Male|Female)|
-||
+|Gender|Gender (Male, Female)|
 |fatherFirstName|Father\'s First Name|
 |fatherLastName|Father\'s Last Name|
 |motherFirstName|Mother\'s First Name|
 |motherLastName|Mother\'s Last Name|
-||
 |watchlist|1 (restrict to watchlist)|
 |dateInclude|both (require dates on matched profiles) or neither (include matches without dates)|
 |dateSpread|1-20 (spread of years for date matches)|
@@ -28,7 +26,6 @@ The searchPerson action returns one or more sets person profiles like those from
 |isLiving|1 (restrict matches to profiles of living people)|
 |skipVariants|1 (skip variant last names in matches, only match exact surname)|
 |lastNameMatch|Last Name Matching (all, current, birth, strict)|
-||
 |sort|Sort Order [first, last, birth, death, manager]|
 |secondarySort|Secondary Sort Order [first, last, birth, death, manager]|
 |limit|Number of results to return (1-100, default 10)|
