@@ -71,6 +71,7 @@ Generally if you start at a valid profile and follow use the ids associated with
 |IsRedirect|1 if the profile is a redirection to another profile, e.g. if the LastNameAtBirth was changed.|
 |DataStatus|An array of the "guess", "certain", etc. flags for the data fields.
 |PhotoData|Detailed information for the primary photo|
+|Connected|Indicates whether the person is connected to the global family tree, with 1=connected and 0=unconnected|
 
 The following fields are derived from other fields. They can be requested with "Derived.FieldName".
 
