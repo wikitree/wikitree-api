@@ -55,7 +55,8 @@ Generally if you start at a valid profile and follow use the ids associated with
 |Gender|Male or Female|
 |Photo|The base filename of the primary photo for the profile|
 |IsLiving|1 if the person is considered "living", 0 otherwise|
-|Touched|The timestamp the profile was last modified, YYYYMMDDHHMMSS
+|Created|The timestamp the profile was created, YYYYMMDDHHMMSS|
+|Touched|The timestamp the profile was last modified, YYYYMMDDHHMMSS|
 |Privacy|An integer representing the [Privacy](https://www.wikitree.com/wiki/Help:Privacy) setting on the profile. The Privacy determines which fields are available.|
 |Privacy_IsPrivate|True if Privacy = 20|
 |Privacy_IsPublic|True if Privacy = 50|
