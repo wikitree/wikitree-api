@@ -1,35 +1,28 @@
 # WikiTree API: getProfile
-
 ## Parameters
-
 |Param|Value|
 |-----|-----|
 |action|getProfile|
 |key|WikiTree ID or PageId|
-|fields|Optional comma-separated list of fields to return|
+|fields|Optional: comma-separated list of fields to return|
 |bioFormat|Optional: "wiki", "html", or "both"|
-|resolveRedirect|Optional. If 1, then requested profiles that are redirections are followed to the final profile|
+|resolveRedirect|Optional: If 1, then requested profiles that are redirections are followed to the final profile|
 
 ### key
-
 The "key" parameter is used to indicate which profile to return. This can be either a "WikiTree ID" or a "Page ID". The WikiTree ID is the name used after "/wiki" in the URL of the page. For example, for [Person Profile Pages](https://www.wikitree.com/wiki/Help:Person_Profile) like https://www.wikitree.com/wiki/Shoshone-1, the WikiTree ID is "Shonshone-1". For [Free-Space Profile Pages](https://www.wikitree.com/wiki/Help:Free-Space_Profile), the "Space:" prefix is required. For example, for https://www.wikitree.com/wiki/Space:Space:Edward_D._Whitten%27s_Model_Ships, the WikiTree ID is "Space:Edward_D._Whitten%27s_Model_Ships". 
 
 ### fields
-
 The "fields" parameter is optional. If left out, a default set of fields is returned. For Person profile pages, the default is all fields other than the biography, children and spouses. For Free-Space profile pages, the default is to return all fields.
 
 You can specify which fields to return by setting the "fields" parameter to a comma-separated list of those you want. You can also use "*" to indicate "all fields". 
 
 ### bioFormat
-
 If you request the "bio" field (the text biography for a Person profile), the default is to return the content as it's stored, with wiki markup. You can instead request that this markup be rendered into HTML (as it would appear on the profile's web page) by specifying a "bioFormat" of "html". If you use a bioFormat value of "both", then both the original wiki text and the rendered HTML will be returned.
 
 ### resolveRedirect
-
 Generally if you start at a valid profile and follow use the ids associated with relationships (mother, father) you should get a valid/complete profile in return. However, in some circumstances you may end up requesting a profile that has been merged away into another profile, or otherwise is redirected. If you set resolveRedirect=1 in your POST to the API, then any profiles that would be returned that are redirections will be followed to their end point, and *that* final profile will be returned.
 
 ## Results
-
 |Field|Description|
 |-----|-----------|
 |Id|Integer "user/person" id of profile|
@@ -78,7 +71,7 @@ The following fields are derived from other fields. They can be requested with "
 
 |Field|Description|
 |-----|-----------|
-|ShortName|RealName (LastNameAtBirth) LastNameCurrent Suffix
+|ShortName|RealName (LastNameAtBirth) LastNameCurrent Suffix|
 |BirthName|FirstName MiddleName|
 |BirthNamePrivate|RealName LastNameAtBirth Suffix|(LastNameAtBirth) LastNameCurrent Suffix|
 |LongName|FirstName MiddleName (LastNameAtBirth) LastNameCurrent Suffix|
@@ -97,9 +90,29 @@ You can also request **Managers** or **TrustedList**. Either one returns an arra
 Finally, you can request **Categories**. The returned field is an array of the Category titles which are connected to the proifle.
 
 ### DataStatus Details
+DataStatus includes the data qualifiers for the available profile fields:
+|Field|Possible Values|
+|-----|-----------|
+|BirthDate|guess, certain, before, after|
+|BirthLocation|guess, certain|
+|DeathDate|guess, certain, before, after, blank|
+|DeathLocation|guess, certain|
+|FirstName|guess, certain|
+|Gender|guess, certain, other|
+|LastNameCurrent|guess, certain|
+|LastNameOther|guess, certain|
+|MiddleName|guess, certain|
+|Nicknames|guess, certain|
+|Prefix|guess, certain|
+|RealName|guess, certain|
+|Spouse|blank|
+|Suffix|guess, certain|
 
-Certain, Guess, Blank, etc.
-
+The Father and Mother fields return a numerical code:
+|Field|Possible Values|
+|-----|-----------|
+|Father|30=confirmed with DNA<br>20=confident<br>10=uncertain<br>5=non-biological|
+|Mother|30=confirmed with DNA<br>20=confident<br>10=uncertain<br>5=non-biological|
 
 ### PhotoData Details
 |Field|Description|
@@ -113,10 +126,7 @@ Certain, Guess, Blank, etc.
 |orig_width|Width in px of original full-size image|
 |orig_height|Height in px of original full-size image|
 
-
-
 ## Examples
-
 ```
 curl 'https://api.wikitree.com/api.php?action=getProfile&key=Clemens-1&fields=Id,PageId,Name,FirstName,LastNameAtBirth,BirthDate,DeathDate'
 
@@ -144,4 +154,4 @@ curl 'https://api.wikitree.com/api.php?action=getProfile&key=7146&fields=Id,Page
 
 * [JavaScript](examples/getProfile/javascript.html)
 * Python - web page, command line
-* [PHP](examples/getProfile/phpWebPage.php) (also have command-live example)
+* [PHP](examples/getProfile/phpWebPage.php) (also have command-line example)
