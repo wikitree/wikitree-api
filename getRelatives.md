@@ -1,13 +1,13 @@
 # WikiTree API: getRelatives
 
-The getRelatives action returns one or more sets person profiles like those from [getProfile](getProfile.md). From a starting profile, specified by a "key" that is a WikiTree ID or User ID, you can retrieve parents, children, siblings, and/or spouses.
+The getRelatives action returns one or more sets of person profiles like those from [getProfile](getProfile.md). From a starting profile, specified by a "key" that is a WikiTree ID or User ID, you can retrieve parents, children, siblings, and/or spouses.
 
 ## Parameters
 
 |Param|Value|
 |-----|-----|
 |action|getRelatives|
-|key|WikiTree ID or Id|
+|keys|Comma-separated list of WikiTree IDs|
 |fields|Optional comma-separated list of fields to return for each profile|
 |bioFormat|Optional: "wiki", "html", or "both"|
 |getParents|If true, the parents are returned|

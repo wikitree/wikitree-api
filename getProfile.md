@@ -58,6 +58,7 @@ Generally if you start at a valid profile and follow use the ids associated with
 |Privacy_IsSemiPrivate|True if Privacy = 30-40|
 |Privacy_IsSemiPrivateBio|True if Privacy = 30|
 |Manager|The Id (user_id) of the (a) manager of the profile|
+|Creator|The Id (user_id) of the creator of the profile|
 |Father|The Id (user_id) of the father of the profile. Zero if empty. Null if excluded by privacy.|
 |Mother|The Id (user_id) of the mother of the profile. Zero if empty. Null if excluded by privacy.|
 |HasChildren|1 if the profile has at least one child|
