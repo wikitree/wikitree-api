@@ -74,6 +74,7 @@ Generally if you start at a valid profile and follow use the ids associated with
 |DataStatus|An array of the "guess", "certain", etc. flags for the data fields.
 |PhotoData|Detailed information for the primary photo|
 |Connected|Indicates whether the person is connected to the global family tree, with 1=connected and 0=unconnected|
+|Bio|The text of the biography (not included in default, optional parameter bioFormat can be wiki, html or both)
 
 The following fields are derived from other fields. They can be requested with "Derived.FieldName".
 
