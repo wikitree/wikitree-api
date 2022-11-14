@@ -59,7 +59,7 @@
 		<pre>
 $.ajax({
 	// The WikiTree API endpoint
-	'url': 'https://api.wikitree.com/api.php',
+	'url': API_URL,
 
 	// We tell the browser to send any cookie credentials we might have (in case we authenticated).
 	'xhrFields': { withCredentials: true },
@@ -123,6 +123,21 @@ $.ajax({
 		where you can now retrieve data for private profiles that are on your own watched list.
 	</p>
 	<p>
+		We can also check on our login, e.g. when the page loads, to make sure the userId we stored 
+		is (still) logged in over at the WikiTree API:
+		<blockquote id="checkLoginResult"></blockquote>
+	</p>
+	<p>
+		If you want to see the checkLogin verification fail, you can logout of the API. You'll return here where
+		the locally stored Name/Id are still set. But checkLogin will fail so we know you aren't actually logged in at the API.
+		<form action="https://api.wikitree.com/api.php" method="POST">
+			<input type="hidden" name="action" value="clientLogin">
+			<input type="hidden" name="doLogout" value="1">
+			<input type="hidden" class="returnURL" name="returnURL" value="">
+			<input type="submit" value="Log Out of the API">
+		</form>
+	</p>
+		To clear the locally stored Name/Id, click "Start Over".
 		<button id="startOver">Start Over</button>
 	</p>
 </article>
@@ -131,6 +146,8 @@ $.ajax({
 <script>
 // When our page loads, check to see if we are logged in (according to our locally-stored cookie).
 // If not, tell the user to go login.
+var API_URL = "https://api.wikitree.com/api.php";
+
 $(document).ready(function() {
 
 	// Generalize our returnURL value to be wherever this example is installed.
@@ -152,6 +169,18 @@ $(document).ready(function() {
 		$('#user_id').html(userId);
 		$('#authenticated').show().removeClass('inactive');
 		document.getElementById('authenticated').scrollIntoView();
+
+		$('#checkLoginResult').html("Checking on login status for user ID:",userId);
+		$.ajax({
+			'url': API_URL,
+			'xhrFields': { withCredentials: true },
+			type: 'POST',
+			dataType: 'json',
+			data: { 'action':'clientLogin', 'checkLogin':userId }
+		}).done(function(data) {
+			$('#checkLoginResult').html("<pre>"+FormatJSON(data)+"</pre>");
+		});
+
 	}
 
 	// If we're not logged in, but the API has just returned us here with an authcode,
@@ -162,7 +191,7 @@ $(document).ready(function() {
 
 		$.ajax({
 			// The WikiTree API endpoint
-			'url': 'https://api.wikitree.com/api.php',
+			'url': API_URL,
 		
 			// We tell the browser to send any cookie credentials we might have (in case we authenticated).
 			'xhrFields': { withCredentials: true },

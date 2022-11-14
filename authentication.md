@@ -61,3 +61,26 @@ The clientLogin steps described above are used for applications running in-brows
 ## Examples
 * [Python command line](examples/authentication/python.py)
 
+# Checking Login Status
+
+An application will store the user Id of the user logged into the API, e.g. when confirming an authcode. That way the app knows that the user is signed in, and can proceed accordingly. However it's possible that the user was logged out at api.wikitree.com, but that the saved cookie on the app's site (e.g. apps.wikitree.com) is still present. A login can be confirmed by sending the Id as the checkLogin parameter to the clientLogin action. If the given user Id is signed into the API, the result will be "ok", otherwise "error".
+
+```
+https://api.wikitree.com/api.php?action=clientLogin&checkLogin=123
+
+{
+  "clientLogin": {
+    "checkLogin": 123,
+    "result": "error"
+  }
+}
+
+
+https://api.wikitree.com/api.php?action=clientLogin&checkLogin=456
+{
+  "clientLogin": {
+    "checkLogin": 456,
+    "result": "ok"
+  }
+}
+```
