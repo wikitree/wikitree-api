@@ -4,9 +4,7 @@
 
 The WikiTree API provides read-only access to much of the profile data on the site. You can use it for your own applications that read and display the contents. If you want to enable updates to the content, you can use the data from the API and send your users through edit functions on the site.
 
-
 ## Getting Started
-
 
 The WikiTree API is called through the end point: *https://api.wikitree.com/api.php*
 
@@ -64,23 +62,23 @@ curl 'https://api.wikitree.com/api.php?action=getProfile&key=Burk-1'
 
 ## Actions
 
-|Action|Result|
-|------|------|
-|[getProfile](getProfile.md)|Retrieve a Person or Free-Space profile|
-|[getPerson](getPerson.md)|Retrieve a Person|
-|[getBio](getBio.md)|Get the biography text for a person profile|
-|[getPhotos](getPhotos.md)|Get the photos connected to a profile|
-|[getAncestors](getAncestors.md)|Get multiple generations of ancestors of a person profile, following father and mother|
-|[getDescendants](getDescendants.md)|Get multiple generations of descendants of a person profile, following children|
-|[getRelatives](getRelatives.md)|Get parents, children, siblings, and/or spouses of a profile|
-|[getWatchlist](getWatchlist.md)|Get the profiles on the watch list of the logged-in profile|
-|[getDNATestsByTestTaker](getDNATestsByTestTaker.md)|Get the list of DNA Tests taken by a profile|
-|[getConnectedProfilesByDNATest](getConnectedProfilesByDNATest.md)|Get the profiles connected via DNA test|
-|[getConnectedDNATestsByProfile](getConnectedDNATestsByProfile.md)|Get the DNA Tests connected to a profile|
-|[getCategories](getCategories.md)|Get the Categories connected to a profile|
-|[searchPerson](searchPerson.md)|Search for person profiles|
-|[clientLogin](authentication.md)|Authenticate as a WikiTree.com member|
-
+| Action                                                            | Result                                                                                 |
+| ----------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| [getProfile](getProfile.md)                                       | Retrieve a Person or Free-Space profile                                                |
+| [getPerson](getPerson.md)                                         | Retrieve a Person                                                                      |
+| [getBio](getBio.md)                                               | Get the biography text for a person profile                                            |
+| [getPhotos](getPhotos.md)                                         | Get the photos connected to a profile                                                  |
+| [getPeople](getPeople.md)                                         | Get the multiple profiles by key and/or relationship                                   |
+| [getAncestors](getAncestors.md)                                   | Get multiple generations of ancestors of a person profile, following father and mother |
+| [getDescendants](getDescendants.md)                               | Get multiple generations of descendants of a person profile, following children        |
+| [getRelatives](getRelatives.md)                                   | Get parents, children, siblings, and/or spouses of a profile                           |
+| [getWatchlist](getWatchlist.md)                                   | Get the profiles on the watch list of the logged-in profile                            |
+| [getDNATestsByTestTaker](getDNATestsByTestTaker.md)               | Get the list of DNA Tests taken by a profile                                           |
+| [getConnectedProfilesByDNATest](getConnectedProfilesByDNATest.md) | Get the profiles connected via DNA test                                                |
+| [getConnectedDNATestsByProfile](getConnectedDNATestsByProfile.md) | Get the DNA Tests connected to a profile                                               |
+| [getCategories](getCategories.md)                                 | Get the Categories connected to a profile                                              |
+| [searchPerson](searchPerson.md)                                   | Search for person profiles                                                             |
+| [clientLogin](authentication.md)                                  | Authenticate as a WikiTree.com member                                                  |
 
 ## Example
 
@@ -103,9 +101,8 @@ curl 'https://api.wikitree.com/api.php?action=getProfile&key=Franklin-10478'
   }
 ]
 ```
+
 See [Examples](examples/examples.md).
-
-
 
 ## Authentication
 
@@ -118,7 +115,6 @@ Public profiles can be retrieved without any prior authentication using getProfi
 - [Chrome Extension](examples/chromeExtension/chromeExtension.md) to add a small reference box to WikiTree EditFamily pages.
 - [Random Tree Walk](examples/randomTreeWalk/randomTreeWalk.html) - wanders around the global tree.
 
-
 ## Apps.WikiTree.com
 
 Hosting space of user applications
@@ -126,4 +122,3 @@ Hosting space of user applications
 - on https://apps.wikitree.com/
 - Basic file storage for viewing through web browser
 - SFTP access only (no control panel for files or anything)
-
