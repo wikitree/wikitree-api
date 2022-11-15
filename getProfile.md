@@ -22,7 +22,7 @@ You can specify which fields to return by setting the "fields" parameter to a co
 
 ### bioFormat
 
-If you request the "bio" field (the text biography for a Person profile), the default is to return the content as it's stored, with wiki markup. You can instead request that this markup be rendered into HTML (as it would appear on the profile's web page) by specifying a "bioFormat" of "html". If you use a bioFormat value of "both", then both the original wiki text and the rendered HTML will be returned.
+If you request the "Bio" field (the text biography for a Person profile), the default is to return the content as it's stored, with wiki markup. You can instead request that this markup be rendered into HTML (as it would appear on the profile's web page) by specifying a "bioFormat" of "html". If you use a bioFormat value of "both", then both the original wiki text and the rendered HTML will be returned.
 
 ### resolveRedirect
 
@@ -74,6 +74,7 @@ Generally if you start at a valid profile and follow use the ids associated with
 |DataStatus|An array of the "guess", "certain", etc. flags for the data fields.
 |PhotoData|Detailed information for the primary photo|
 |Connected|Indicates whether the person is connected to the global family tree, with 1=connected and 0=unconnected|
+|Bio|The text of the biography (not included in default, optional parameter bioFormat can be wiki, html or both)
 
 The following fields are derived from other fields. They can be requested with "Derived.FieldName".
 
