@@ -5,7 +5,7 @@
 | Param         | Value                                                                                                                           |
 | ------------- | ------------------------------------------------------------------------------------------------------------------------------- |
 | action        | getPeople                                                                                                                       |
-| keys          | One or more WikiTree ID or PageId values separated by commas                                                                    |
+| keys          | One or more WikiTree ID or (User/Person)Id values separated by commas                                                                    |
 | fields        | Optional comma-separated list of fields to return                                                                               |
 | bioFormat     | Optional: "wiki", "html", or "both"                                                                                             |
 | siblings      | If 1, then get siblings of profiles, If 0 (default), do not get siblings                                                        |
@@ -13,18 +13,24 @@
 | descendants   | Number of generations of descendants (children) to return from the starting id(s). Default 0.                                   |
 | nuclear       | Number of generations of nuclear relatives (parents, children, siblings, spouses) to return from the starting id(s). Default 0. |
 | minGeneration | Generation number to start at when gathering relatives                                                                          |
+| limit         | The maximum number of related profiles to return (default 1000) |
+| start         | The starting number of the returned page of (limit) profiles (default 0) |
 
 ### keys
 
-The "keys" parameter is used to indicate the starting set of which profile(s) to return. The value is a comma-delimited list of key values, where each key can be either a "WikiTree Id" or a "User Id". The WikiTree Id is the name used after "/wiki/" in the URL of the page. For example, for https://www.wikitree.com/wiki/Shoshone-1, the WikiTree Id is "Shonshone-1". The User Id is the value used in all of the person-to-person relationship references, like Father and Mother, and is the "Id" value returned for a profile.
+The "keys" parameter is used to indicate the initial set of which profile(s) to return. The value is a comma-delimited list of key values, where each key can be either a "WikiTree Id" or a "User Id". The WikiTree Id is the name used after "/wiki/" in the URL of the page. For example, for https://www.wikitree.com/wiki/Shoshone-1, the WikiTree Id is "Shonshone-1". The User Id is the value used in all of the person-to-person relationship references, like Father and Mother, and is the "Id" value returned for a profile.
 
 ### fields
 
-The "fields" parameter is optional. If left out, a default set of fields is returned. The default is all fields other than the biography. With getPeople, you cannot request additional relatives for each profile, so the fields "Parents", "Children", "Siblings", and "Spouses" are not allowed. You can instead retrieve those profiles by using "nuclear=1" or setting ancestors/descendants to one or more generations. You can specify which fields to return by setting the "fields" parameter to a comma-separated list of those you want. You can also use "\*" to indicate "all fields". See [getProfile.md](getProfile.md) for the fields in each Person profile.
+The "fields" parameter is optional. If left out, each profile will be returned with only the Id and Name values. With getPeople, you cannot request additional relatives for each profile, so the fields "Parents", "Children", "Siblings", and "Spouses" are not allowed. You can instead retrieve those profiles by using "nuclear=1" or setting ancestors/descendants to one or more generations. You can specify which fields to return by setting the "fields" parameter to a comma-separated list of those you want. See [getProfile.md](getProfile.md) for the fields in each Person profile.
 
 ### bioFormat
 
 If you request the "bio" field (the text biography for a Person profile), the default is to return the content as it's stored, with wiki markup. You can instead request that this markup be rendered into HTML (as it would appear on the profile's web page) by specifying a "bioFormat" of "html". If you use a bioFormat value of "both", then both the original wiki text and the rendered HTML will be returned.
+
+### start & limit
+
+The getPeople action allows for the pagination of the results. Only the related profiles (connected through the nuclear, ancestors, descendants options) are paginated. The initial set of profiles are returned in the results unpaginated by the start/limit values. The maximum (and default) limit is currently 1000. If you make a request for ancestors/descendants that would generate more related profiles than that, you'll need to make subsequent calls with a new "start" value.
 
 ## Results
 
@@ -303,6 +309,58 @@ curl 'https://api.wikitree.com/api.php?action=getPeople&keys=Hamill-277&fields=I
         "Mother": 36098129
       }
     }
+  }
+]
+```
+
+Get five generations of ancestors of a profile, gathering them ten at a time:
+
+```
+curl https://api.wikitree.com/api.php?action=getPeople&keys=Swift-1107&ancestors=5&limit=10&start=0
+
+[
+  {
+    "status": "",
+    "resultByKey": {
+      "Swift-1107": {
+        "Id": 7705553
+      }
+    },
+    "people": {
+      "183135": {
+        "Id": 183135,
+        "Name": "Dryden-4"
+      },
+      "183260": {
+        "Id": 183260,
+        "Name": "Swift-10"
+      },
+      ...
+    }
+  }
+]
+
+curl https://api.wikitree.com/api.php?action=getPeople&keys=Swift-1107&ancestors=5&limit=10&start=9
+
+[
+  {
+    "status": "",
+    "resultByKey": {
+      "Swift-1107": {
+        "Id": 7705553
+      }
+    },
+    "people": {
+      "188647": {
+        "Id": 188647,
+        "Name": "Godwin-7"
+      },
+      "188737": {
+        "Id": 188737,
+        "Name": "Godwin-8"
+      },
+    }
+    ...
   }
 ]
 ```
