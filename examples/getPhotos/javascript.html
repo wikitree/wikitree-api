@@ -70,7 +70,7 @@ function getPhotos() {
 	// The POST is asynchronous, so we have to wait for it to return before we have any profile data to work with.
 	// We pass in the action and parameters we're sending to the API.
 	// getPhotos just needs a "key" which can be a WikiTree ID or "Page" Id.
-	postToAPI( { 'action': 'getPhotos', 'key': key, 'limit':limit, 'start':start, 'order':order, 'resolveRedirect': resolveRedirect } )
+	postToAPI( { 'action': 'getPhotos', 'appId': 'APIExamples', 'key': key, 'limit':limit, 'start':start, 'order':order, 'resolveRedirect': resolveRedirect } )
 	.done(function(result) { renderResults(result); })
 	.fail(function(error) {
 		console.log(error);

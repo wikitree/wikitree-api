@@ -69,7 +69,7 @@ function getDescendantsWithJQuery() {
 	// The POST is asynchronous, so we have to wait for it to return before we have any profile data to work with.
 	// We pass in the action and parameters we're sending to the API.
 	// getDescendants just needs a "key" which can be a WikiTree ID or "User" Id.
-	postToAPI( { 'action': 'getDescendants', 'key': key, 'depth': depth, 'fields': fields, 'bioFormat': bioFormat, 'resolveRedirect': resolveRedirect } )
+	postToAPI( { 'action': 'getDescendants', 'appId': 'APIExamples', 'key': key, 'depth': depth, 'fields': fields, 'bioFormat': bioFormat, 'resolveRedirect': resolveRedirect } )
 	.done(function(result) { renderResults(result); })
 	.fail(function(error) {
 		console.log(error);

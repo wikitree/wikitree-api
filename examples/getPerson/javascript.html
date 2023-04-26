@@ -68,7 +68,7 @@ function getPersonWithJQuery() {
 	// The POST is asynchronous, so we have to wait for it to return before we have any profile data to work with.
 	// We pass in the action and parameters we're sending to the API.
 	// getPerson just needs a "key" which can be a WikiTree ID or "User" Id.
-	postToAPI( { 'action': 'getPerson', 'key': key, 'fields': fields, 'bioFormat': bioFormat, 'resolveRedirect': resolveRedirect } )
+	postToAPI( { 'action': 'getPerson', 'appId': 'APIExamples', 'key': key, 'fields': fields, 'bioFormat': bioFormat, 'resolveRedirect': resolveRedirect } )
 	.done(function(result) { renderResults(result); })
 	.fail(function(error) {
 		console.log(error);
@@ -87,7 +87,7 @@ function getPersonWithJavascript() {
 	// The POST is asynchronous, so we have to wait for it to return before we have any profile data to work with.
 	// We pass in the action and parameters we're sending to the API.
 	// getPerson just needs a "key" which can be a WikiTree ID or "User" Id.
-	postToAPIWithJavascript({ 'action': 'getPerson', 'key': key, 'fields': fields, 'bioFormat': bioFormat, 'resolveRedirect': resolveRedirect } )
+	postToAPIWithJavascript({ 'action': 'getPerson', 'appId': 'APIExamples', 'key': key, 'fields': fields, 'bioFormat': bioFormat, 'resolveRedirect': resolveRedirect } )
 	.then(function(result) { renderResults(result); })
 	.catch(function(error) {
 		console.log(error);

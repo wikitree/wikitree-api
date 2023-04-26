@@ -43,7 +43,7 @@ function getCategories() {
 	// The POST is asynchronous, so we have to wait for it to return before we have any profile data to work with.
 	// We pass in the action and parameters we're sending to the API.
 	// getCategories just needs a "key" which can be a WikiTree ID or "User" Id.
-	postToAPI( { 'action': 'getCategories', 'key': key } )
+	postToAPI( { 'action': 'getCategories', 'appId': 'APIExamples', 'key': key } )
 	.done(function(result) { renderResults(result); })
 	.fail(function(error) {
 		console.log(error);
