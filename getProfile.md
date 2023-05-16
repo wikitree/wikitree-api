@@ -26,7 +26,8 @@ If you request the "bio" field (the text biography for a Person profile), the de
 
 ### resolveRedirect
 
-Generally if you start at a valid profile and follow use the ids associated with relationships (mother, father) you should get a valid/complete profile in return. However, in some circumstances you may end up requesting a profile that has been merged away into another profile, or otherwise is redirected. If you set resolveRedirect=1 in your POST to the API, then any profiles that would be returned that are redirections will be followed to their end point, and *that* final profile will be returned.
+Generally if you start at a valid profile and follow use the ids associated with relationships (mother, father) you should get a valid/complete profile in return. However, in some circumstances you may end up requesting a profile that has been merged away into another profile, or otherwise is redirected. By default, this redirection
+is resolved such that the profile data you get is the final redirected-to profile. A "redirectedFrom" field is also set in these profile results. You can avoid the redirection and get the original profile requested if you explicitly set resolveRedirect=0 in your POST to the API.
 
 ## Results
 
@@ -34,7 +35,7 @@ Generally if you start at a valid profile and follow use the ids associated with
 |-----|-----------|
 |Id|Integer "user/person" id of profile|
 |PageId|Integer ID used in getProfile to request the content|
-|Name|The WikiTree ID|
+|Name|The WikiTree ID, with spaces replaced by underscores as in an URL|
 |IsPerson|1 for Person profiles|
 |FirstName|First Name|
 |MiddleName|Middle Name|
@@ -72,8 +73,10 @@ Generally if you start at a valid profile and follow use the ids associated with
 |NoChildren|1 if the "No more children" box is checked on the profile|
 |IsRedirect|1 if the profile is a redirection to another profile, e.g. if the LastNameAtBirth was changed.|
 |DataStatus|An array of the "guess", "certain", etc. flags for the data fields.
-|PhotoData|Detailed information for the primary photo|
+|PhotoData|Detailed information for the primary photo. Requesting this implies the Photo field, from which it's derived.|
 |Connected|Indicates whether the person is connected to the global family tree, with 1=connected and 0=unconnected|
+|IsMember|True/1 if the profile is that of an active WikiTree member, false/0 otherwise.|
+|EditCount|The contribution count of the user/profile.|
 
 The following fields are derived from other fields. They can be requested with "Derived.FieldName".
 

@@ -22,7 +22,7 @@ The "keys" parameter is used to indicate the initial set of which profile(s) to 
 
 ### fields
 
-The "fields" parameter is optional. If left out, each profile will be returned with only the Id and Name values. With getPeople, you cannot request additional relatives for each profile, so the fields "Parents", "Children", "Siblings", and "Spouses" are not allowed. You can instead retrieve those profiles by using "nuclear=1" or setting ancestors/descendants to one or more generations. You can specify which fields to return by setting the "fields" parameter to a comma-separated list of those you want. See [getProfile.md](getProfile.md) for the fields in each Person profile.
+The "fields" parameter is optional. If left out, each profile will be returned with only the Id and Name values. With getPeople, you cannot request additional relatives for each profile, so the fields "Parents", "Children", and "Siblings" are not allowed. You can instead retrieve those profiles by using "nuclear=1" or setting ancestors/descendants to one or more generations. You can specify which fields to return by setting the "fields" parameter to a comma-separated list of those you want. See [getProfile.md](getProfile.md) for the fields in each Person profile.
 
 ### bioFormat
 
