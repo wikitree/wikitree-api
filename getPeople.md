@@ -24,6 +24,8 @@ The "keys" parameter is used to indicate the initial set of which profile(s) to 
 
 The "fields" parameter is optional. If left out, each profile will be returned with only the Id and Name values. With getPeople, you cannot request additional relatives for each profile, so the fields "Parents", "Children", and "Siblings" are not allowed. You can instead retrieve those profiles by using "nuclear=1" or setting ancestors/descendants to one or more generations. You can specify which fields to return by setting the "fields" parameter to a comma-separated list of those you want. See [getProfile.md](getProfile.md) for the fields in each Person profile.
 
+For getPeople, in addition to the regular profile fields you can add a value of "Meta". If the Meta field is requested, then each person profile in the returned array of people will include a "Meta" entry. This is an associative array with (currently) one item. That is "Degrees", an integer value indicating the number of steps that profile is away from the originating key profile.
+
 ### bioFormat
 
 If you request the "bio" field (the text biography for a Person profile), the default is to return the content as it's stored, with wiki markup. You can instead request that this markup be rendered into HTML (as it would appear on the profile's web page) by specifying a "bioFormat" of "html". If you use a bioFormat value of "both", then both the original wiki text and the rendered HTML will be returned.
