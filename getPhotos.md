@@ -18,7 +18,7 @@ The "key" parameter is used to indicate which profile to return. This can be eit
 
 ### resolveRedirect
 
-Generally if you start at a valid profile and follow use the ids associated with relationships (mother, father) you should get a valid/complete profile in return. However, in some circumstances you may end up requesting a profile that has been merged away into another profile, or otherwise is redirected. If you set resolveRedirect=1 in your POST to the API, then any profiles that would be returned that are redirections will be followed to their end point, and *that* final profile will be returned.
+Generally if you start at a valid profile and follow use the ids associated with relationships (mother, father) you should get a valid/complete profile in return. However, in some circumstances you may end up requesting a profile that has been merged away into another profile, or otherwise is redirected. If you set resolveRedirect=1 in your action, then any profiles that would be returned that are redirections will be followed to their end point, and *that* final profile will be returned.
 
 ### limit
 
