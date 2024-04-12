@@ -1,0 +1,32 @@
+html {
+    box-sizing: border-box;
+    overflow: -moz-scrollbars-vertical;
+    overflow-y: scroll;
+}
+
+*,
+*:before,
+*:after {
+    box-sizing: inherit;
+}
+
+body {
+    margin: 0;
+    background: #fafafa;
+}
+
+.keyword {
+    color: #569CD6;
+}
+
+.string {
+    color: #CE9178;
+}
+
+.variable {
+    color: #9CDCFE;
+}
+
+.comment {
+    color: rgb(162, 252, 162);
+}
