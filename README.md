@@ -112,7 +112,7 @@ Public profiles can be retrieved without any prior authentication using getProfi
 
 ## Application ID
 
-In order to identify which applications are popular, better manage the resources devoted to the API, and look for places where new API functions might improve app efficiency, API queries accept an optional "appId" parameter. The value has no impact on the results of the query, but is used when the API interaciton is logged. App developers are encourged to add an "appId=abc123" parameter to their API queries. The ID can contain letters, digits, underscore, and hyphen. For example:
+In order to identify which applications are popular, better manage the resources devoted to the API, and look for places where new API functions might improve app efficiency, API queries accept an optional "appId" parameter. The value has no impact on the results of the query, but is used when the API interaction is logged. App developers are encourged to add an "appId=abc123" parameter to their API queries. The ID can contain letters, digits, underscore, and hyphen. For example:
 
 ```
 curl 'https://api.wikitree.com/api.php?action=getProfile&key=Franklin-10478&appId=SpectacularTree'

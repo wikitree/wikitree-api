@@ -18,7 +18,9 @@
 
 ### keys
 
-The "keys" parameter is used to indicate the initial set of which profile(s) to return. The value is a comma-delimited list of key values, where each key can be either a "WikiTree Id" or a "User Id". The WikiTree Id is the name used after "/wiki/" in the URL of the page. For example, for https://www.wikitree.com/wiki/Shoshone-1, the WikiTree Id is "Shonshone-1". The User Id is the value used in all of the person-to-person relationship references, like Father and Mother, and is the "Id" value returned for a profile.
+The "keys" parameter is used to indicate the initial set of which profile(s) to return. The value is a comma-delimited list of key values, where each key can be either a "WikiTree Id" or a "User Id". The WikiTree Id is the name used after "/wiki/" in the URL of the page. For example, for https://www.wikitree.com/wiki/Shoshone-1, the WikiTree Id is "Shonshone-1". The User Id is the value used in all of the person-to-person relationship references, like Father and Mother, and is the "Id" value returned for a profile. 
+
+The maximum number of keys that can be requested is 100 when any combination of `ancestors`, `descendants` or `nuclear` is used, otherwise the maximum is 1000.
 
 ### fields
 
