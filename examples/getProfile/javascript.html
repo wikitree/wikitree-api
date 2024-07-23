@@ -68,7 +68,7 @@ function getProfileWithJQuery() {
 	// The POST is asynchronous, so we have to wait for it to return before we have any profile data to work with.
 	// Thse are the function/action and parameters we're sending to the API.
 	// getProfile just needs a "key" which can be a WikiTree ID or "page" id.
-	postToAPI( { 'action': 'getProfile', 'key': key, 'fields': fields, 'bioFormat': bioFormat, 'resolveRedirect': resolveRedirect } )
+	postToAPI( { 'action': 'getProfile', 'appId': 'APIExamples', 'key': key, 'fields': fields, 'bioFormat': bioFormat, 'resolveRedirect': resolveRedirect } )
 	.done(function(result) { renderResults(result); })
 	.fail(function(error) {
 		console.log(error);
@@ -84,7 +84,7 @@ function getProfileWithJavascript() {
 	var bioFormat = $('input[name="bioFormat"]:checked').val();
 	var resolveRedirect = $('#resolveRedirect').prop('checked') ? 1 : 0;
 
-	postToAPIWithJavascript({ 'action': 'getProfile', 'key': key, 'fields': fields, 'bioFormat': bioFormat, 'resolveRedirect': resolveRedirect } )
+	postToAPIWithJavascript({ 'action': 'getProfile', 'appId': 'APIExamples', 'key': key, 'fields': fields, 'bioFormat': bioFormat, 'resolveRedirect': resolveRedirect } )
 	.then(function(result) { renderResults(result); })
 	.catch(function(error) {
 		console.log(error);

@@ -61,7 +61,7 @@ function getRelatives(getType) {
 	var fields = $('#fields').val();
 	var bioFormat = $('input[name="bioFormat"]:checked').val();
 
-	var params = { 'action': 'getRelatives', 'keys': keys, 'fields': fields, 'bioFormat': bioFormat };
+	var params = { 'action': 'getRelatives', 'appId': 'APIExamples', 'keys': keys, 'fields': fields, 'bioFormat': bioFormat };
 	params[getType] = 1;
 
 	// The POST is asynchronous, so we have to wait for it to return before we have any profile data to work with.

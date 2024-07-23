@@ -26,7 +26,8 @@ If you request the "Bio" field (the text biography for a Person profile), the de
 
 ### resolveRedirect
 
-Generally if you start at a valid profile and follow use the ids associated with relationships (mother, father) you should get a valid/complete profile in return. However, in some circumstances you may end up requesting a profile that has been merged away into another profile, or otherwise is redirected. If you set resolveRedirect=1 in your POST to the API, then any profiles that would be returned that are redirections will be followed to their end point, and *that* final profile will be returned.
+Generally if you start at a valid profile and follow use the ids associated with relationships (mother, father) you should get a valid/complete profile in return. However, in some circumstances you may end up requesting a profile that has been merged away into another profile, or otherwise is redirected. By default, this redirection
+is resolved such that the profile data you get is the final redirected-to profile. A "redirectedFrom" field is also set in these profile results. You can avoid the redirection and get the original profile requested if you explicitly set resolveRedirect=0 in your POST to the API.
 
 ## Results
 
@@ -34,7 +35,7 @@ Generally if you start at a valid profile and follow use the ids associated with
 |-----|-----------|
 |Id|Integer "user/person" id of profile|
 |PageId|Integer ID used in getProfile to request the content|
-|Name|The WikiTree ID|
+|Name|The WikiTree ID, with spaces replaced by underscores as in an URL|
 |IsPerson|1 for Person profiles|
 |FirstName|First Name|
 |MiddleName|Middle Name|
@@ -72,9 +73,11 @@ Generally if you start at a valid profile and follow use the ids associated with
 |NoChildren|1 if the "No more children" box is checked on the profile|
 |IsRedirect|1 if the profile is a redirection to another profile, e.g. if the LastNameAtBirth was changed.|
 |DataStatus|An array of the "guess", "certain", etc. flags for the data fields.
-|PhotoData|Detailed information for the primary photo|
+|PhotoData|Detailed information for the primary photo. Requesting this implies the Photo field, from which it's derived.|
 |Connected|Indicates whether the person is connected to the global family tree, with 1=connected and 0=unconnected|
 |Bio|The text of the biography (not included in default, optional parameter bioFormat can be wiki, html or both)
+|IsMember|True/1 if the profile is that of an active WikiTree member, false/0 otherwise.|
+|EditCount|The contribution count of the user/profile.|
 
 The following fields are derived from other fields. They can be requested with "Derived.FieldName".
 
@@ -96,7 +99,43 @@ The relative fields are arrays of Profile items, indexed by Id, each with the sa
 
 You can also request **Managers** or **TrustedList**. Either one returns an array of profile data that includes Id, Page Id, and Name for the person on the list. For TrustedList, the list is all people on the Trusted List of the profile and each entry includes an "IsManager" field, set to 1 if the person is a manager and zero otherwise. For Managers, only those that are managers are included.
 
-Finally, you can request **Categories**. The returned field is an array of the Category titles which are connected to the proifle.
+You can request **Categories**. The returned field is an array of the Category titles which are connected to the profile.
+
+You can request **Templates**. This returns an array with the set of templates in use on a profile. Each element in the array contains the "name" of the template, as well as an array of "params" to hold the options/parameters of that template. The "params" array is a set of key/value pairs. If the option/parameter in the template was just a single value, then that is the "key" and the value is null. For example:
+
+```
+{{9-11 Sticker}}
+      "Templates": [
+        {
+          "name": "9-11 Sticker",
+          "params": [
+            
+          ]
+        }
+      ],
+
+{{1776 Sticker|unit=Founding Father|image=Thornton-1863-4.jpg}}
+      "Templates": [
+        {
+          "name": "1776 Sticker",
+          "params": {
+            "unit": "Founding Father",
+            "image": "Thornton-1863-4.jpg"
+          }
+        },
+      ],
+
+{{FindAGrave|121976543}}
+      "Templates": [
+        {
+          "name": "FindAGrave",
+          "params": {
+            "121976543": null
+          }
+        }
+      ],
+```
+
 
 ### DataStatus Details
 

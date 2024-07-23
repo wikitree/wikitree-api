@@ -12,7 +12,7 @@ Note that the token is not used for future queries to the API. The authenticatio
 
 ## 1. Authenticate at api.wikitree.com
 
-The first step is to send the user to api.wikitree.com where they can authenticate themselves. This lets the end user login at WikiTree without providing credentials to a third-party application. You should *not* ask users directly for their login information. Instead link/redirect them to:
+The first step is to send the user to api.wikitree.com where they can authenticate themselves. This lets the end user login at WikiTree without providing credentials to a third-party application. You should _not_ ask users directly for their login information. Instead link/redirect them to:
 
 https://api.wikitree.com/api.php?action=clientLogin&returnURL=[encoded URL of application]
 
@@ -27,6 +27,7 @@ For example, for an application running in a web page in the "Apps" hosting for 
   <input type="submit" class="button small" value="Client Login">
 </form>
 ```
+
 ## 2. Confirm user with authcode
 
 The API redirects the user back to **returnURL** with an **authcode** parameter. This parameter is then used with a POST to the API endpoint with the clientLogin action.
@@ -43,7 +44,6 @@ For example, in our **returnURL** "myapplication.html" can process the returned 
 
 Note that this step lets your application know whether the user is logged in or not. If they succesfully logged in at api.wikitree.com, their browser has a session cookie for that login and your future posts to the API on their behalf will use that authentication. Confirming the authcode is primarily to provide your application with the logged-in status and the user_id/user_name of the logged-in user.
 
-
 ## 3. Send session information for authenticated user
 
 For future posts to the API, you must tell the browser to send along the session cookies for api.wikitree.com so that the API recognizes the authenticated user.
@@ -51,13 +51,45 @@ For future posts to the API, you must tell the browser to send along the session
 In vanilla JavaScript, this is done by setting XMLHttpRequest.withCredentials = true. With jQuery, you set "xhrFields: { withCredentials: true }" in the $.ajax call.
 
 ## Examples
-* [JavaScript](examples/authentication/javascript.html)
 
+- [JavaScript](examples/authentication/javascript.html)
 
 # Authentication for offline/non-browser applications
 
 The clientLogin steps described above are used for applications running in-browser, where the browser holds the session information for the user after they've logged in at api.wikitree.com. If you are developing an application that runs outside of a browser (e.g. a script to run using your own credentials), then you'll need to manage the session yourself.
 
 ## Examples
-* [Python command line](examples/authentication/python.py)
 
+- [Python command line](examples/authentication/python.py)
+
+# Checking Login Status
+
+An application will store the user Id of the user logged into the API, e.g. when confirming an authcode. That way the app knows that the user is signed in, and can proceed accordingly. However it's possible that the user was logged out at api.wikitree.com, but that the saved cookie on the app's site (e.g. apps.wikitree.com) is still present. A login can be confirmed by sending the Id as the checkLogin parameter to the clientLogin action. If the given user Id is signed into the API, the result will be "ok", otherwise "error".
+
+```
+https://api.wikitree.com/api.php?action=clientLogin&checkLogin=123
+
+{
+  "clientLogin": {
+    "checkLogin": 123,
+    "result": "error"
+  }
+}
+
+
+https://api.wikitree.com/api.php?action=clientLogin&checkLogin=456
+{
+  "clientLogin": {
+    "checkLogin": 456,
+    "result": "ok"
+  }
+}
+```
+
+# Logging Out
+
+You can provide a way for the user to log out of the API by sending them to the clientLogin action with doLogout=1. As with the login, you can also pass along returnURL to indicate where the user should be sent after they are logged out. Logging out removes their session data at api.wikitree.com.
+
+```
+https://api.wikitree.com/api.php?action=clientLogin&doLogout=1&returnURL=https://www.wikitree.com/
+```
