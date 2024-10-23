@@ -29,8 +29,6 @@ def get_credentials() -> tuple[str, str]:
 def authenticate_session(session: Session, email: str, password: str) -> None:
     """Authenticates the session with provided credentials"""
 
-    session.auth = ("wikitree", "wikitree")
-
     # Step 1: Obtain the authcode - will be sent from the API in Location header
 
     data = {
