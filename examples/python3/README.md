@@ -1,6 +1,6 @@
 # Python3 Example
 
-This python3 example class provides a complete, single-class solution to both authenticated
+THis python3 example class provides a complete, single-class solution to both authenticated
 and un-authenticated sessions.
 
 It provides convenience methods for all currently documented API calls.

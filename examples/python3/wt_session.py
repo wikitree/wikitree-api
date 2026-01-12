@@ -94,21 +94,15 @@ class WTSession:
     Provides convenience functions for each of the API calls.
     """
 
-    def __init__(self, app_id: str) -> None:
+    def __init__(self) -> None:
         """Just default some values."""
         self._email = ""
         self._authenticated = False
-
-        # CHANGE: Create the session immediately so unauthenticated calls work.
-        self._session = requests.Session()
-
+        self._session = None
         self._authcode = None
         self._wt_cookie = None
         self._user_name = ""
         self._user_id = ""
-
-        # CHANGE: Support appId
-        self._app_id = app_id
 
     @property
     def user_name(self) -> str:
@@ -142,9 +136,6 @@ class WTSession:
 
         # We use a Session to hold the state (via cookie jar) for the API queries
         LOGGER.debug("Starting Session")
-
-        # NOTE: We already created a Session in __init__.
-        # Keeping this line is fine, it simply starts a fresh session for auth.
         self._session = requests.Session()
 
         # Step 1 - POST the clientLogin action with our member credentials.
@@ -165,9 +156,6 @@ class WTSession:
             "doLogin": 1,
             "wpEmail": email,
             "wpPassword": password,
-
-            # CHANGE: include appId during login too
-            "appId": self._app_id,
         }
 
         response = self._session.post(
@@ -196,8 +184,7 @@ class WTSession:
             return self._authenticated
 
         # Now looking for authcode
-        # CHANGE: safer regex so we do not accidentally capture extra query params
-        matches = re.search(r"authcode=([^&]+)", location)
+        matches = re.search("authcode=(.*)", location)
         if matches is None:
             LOGGER.error(
                 "Authentication failed - clientLogin POST did not return authcode"
@@ -214,13 +201,7 @@ class WTSession:
         # Step 2 - POST back the authcode we got. This completes the login/session setup
         # at api.wikitree.com. Since we use the same Session for the post, the cookies are all
         # saved. A success here is a 200 and we'll have WikiTree session cookies.
-        post_data = {
-            "action": "clientLogin",
-            "authcode": self._authcode,
-
-            # CHANGE: include appId on this step too
-            "appId": self._app_id,
-        }
+        post_data = {"action": "clientLogin", "authcode": self._authcode}
         response = self._session.post(
             API_URL,
             data=post_data,
@@ -245,9 +226,7 @@ class WTSession:
         #   'wikitree_wtb_UserID': '<<WikiTree user_id>>'
         # }
         self._wt_cookie = self._session.cookies.get_dict()
-
-        # CHANGE: get_dict() returns {} when empty, not None
-        if not self._wt_cookie:
+        if self._wt_cookie is None:
             LOGGER.error(
                 "Authentication failed - clientLogin(authcode) returned no Cookies."
             )
@@ -297,14 +276,9 @@ class WTSession:
         if need_auth and not self._authenticated:
             return data
 
-        # CHANGE: Always include appId to reduce rate limiting for no-appId traffic.
-        # Copy the dict so we do not mutate the caller's object.
-        post_payload = dict(post_data)
-        post_payload["appId"] = self._app_id
-
         response = self._session.post(
             url=API_URL,
-            data=post_payload,
+            data=post_data,
             # auth=("wikitree", "wikitree"),
         )
 
