@@ -69,6 +69,8 @@ is resolved such that the profile data you get is the final redirected-to profil
 |Creator|The Id (user_id) of the creator of the profile|
 |Father|The Id (user_id) of the father of the profile. Zero if empty. Null if excluded by privacy.|
 |Mother|The Id (user_id) of the mother of the profile. Zero if empty. Null if excluded by privacy.|
+|BioFather|The Id (user_id) of the father of the profile. Null if empty. Negative placeholders will be used if excluded by privacy.|
+|BioMother|The Id (user_id) of the mother of the profile. Null if empty. Negative placeholders will be used if excluded by privacy.|
 |HasChildren|1 if the profile has at least one child|
 |NoChildren|1 if the "No more children" box is checked on the profile|
 |IsRedirect|1 if the profile is a redirection to another profile, e.g. if the LastNameAtBirth was changed.|
