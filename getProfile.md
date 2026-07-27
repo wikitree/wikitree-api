@@ -142,8 +142,19 @@ You can request **Templates**. This returns an array with the set of templates i
 
 ### DataStatus Details
 
-Certain, Guess, Blank, etc.
+In general, "" = not selected, "guess" = about/uncertain, "certain" = exact/certain, "before" = before this date, "after" == after this date.
 
+The exceptions are below:
+
+|Field|Statuses|
+|-----|-----------|
+|MiddleName|"blank" = no middle name|
+|Gender|"blank" = do not display|
+|Father|5 = non-biological, 10 = uncertain, 20 = confident, 30 = confirmed with DNA|
+|Mother|5 = non-biological, 10 = uncertain, 20 = confident, 30 = confirmed with DNA|
+|BioFather|10 = uncertain, 20 = confident, 30 = confirmed|
+|BioMother|10 = uncertain, 20 = confident, 30 = confirmed|
+|Spouse| "blank" = no more spouses, "" = not checked|
 
 ### PhotoData Details
 |Field|Description|
