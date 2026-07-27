@@ -80,6 +80,7 @@ is resolved such that the profile data you get is the final redirected-to profil
 |Bio|The text of the biography (not included in default, optional parameter bioFormat can be wiki, html or both)
 |IsMember|True/1 if the profile is that of an active WikiTree member, false/0 otherwise.|
 |EditCount|The contribution count of the user/profile.|
+|ResearchStatus|The [Research Status](https://www.wikitree.com/wiki/Help:Research_Status) of the profile.|
 
 The following fields are derived from other fields. They can be requested with "Derived.FieldName".
 
@@ -155,6 +156,18 @@ Certain, Guess, Blank, etc.
 |height|Height in px of image|
 |orig_width|Width in px of original full-size image|
 |orig_height|Height in px of original full-size image|
+
+### ResearchStatus Details
+
+|Integer|Status|
+|----|-----------|
+|0| No status|
+|10| Unfinished|
+|20| Help Requested|
+|30| Sources to Review|
+|40| Silver Standard|
+|50| Gold Standard Candidate|
+|60| Gold Standard|
 
 
 
