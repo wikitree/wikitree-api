@@ -79,6 +79,9 @@ If you don't have permission to view a profile in the path, that profile will ha
 
 ## Examples
 
+Check out the [getConnections Tester](https://apps.wikitree.com/apps/clarke11007/apps/getConnectionsTester.php) for a dynamic and visual testing experience of the API - PHP code is in the [examples](examples) folder
+
+
 Get the path between two profiles.
 
 ```
