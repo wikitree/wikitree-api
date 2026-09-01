@@ -9,11 +9,11 @@
 | fields        | Optional comma-separated list of fields to return                                                                               |
 | bioFormat     | Optional: "wiki", "html", or "both"                                                                                             |
 | siblings      | If 1, then get siblings of profiles, If 0 (default), do not get siblings                                                        |
-| ancestors     | Number of generations of ancestors (parents) to return from the starting id(s). Default 0.                                      |
-| descendants   | Number of generations of descendants (children) to return from the starting id(s). Default 0.                                   |
-| nuclear       | Number of generations of nuclear relatives (parents, children, siblings, spouses) to return from the starting id(s). Default 0. |
+| ancestors     | Number of generations of ancestors (parents) to return from the starting id(s). Default 0. Maximum 25.                          |
+| descendants   | Number of generations of descendants (children) to return from the starting id(s). Default 0. Maximum 10.                       |
+| nuclear       | Number of generations of nuclear relatives (parents, children, siblings, spouses) to return from the starting id(s). Default 0. Maximum 10 |
 | minGeneration | Generation number to start at when gathering relatives                                                                          |
-| limit         | The maximum number of related profiles to return (default 1000) |
+| limit         | The maximum number of related profiles to return (default 1025) |
 | start         | The starting number of the returned page of (limit) profiles (default 0) |
 
 ### keys
